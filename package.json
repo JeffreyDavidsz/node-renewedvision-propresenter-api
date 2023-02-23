@@ -1,0 +1,28 @@
+{
+  "name": "renewedvision-propresenter",
+  "version": "7.0.0",
+  "description": "RenewedVision ProPresenter API wrapper",
+  "main": "index.js",
+  "keywords": [
+    "renewedvision",
+    "propresenter"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api"
+  },
+  "author": {
+    "name": "Jeffrey Davidsz <jeffrey.davidsz@vicreo.eu>"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/issues"
+  },
+  "homepage": "https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api#readme",
+  "dependencies": {
+    "node-fetch": "^3.3.0"
+  }
+}
