@@ -48,14 +48,6 @@ class ProPresenter {
   };
 
   /**
-   * Requests the status of all available layers.
-   * @returns Status of all available layers.
-   */
-  statusLayers() {
-    return this.fetchResource("/v1/status/layers", []);
-  }
-
-  /**
    * Requests the general information about the currently active ProPresenter instance
    * @returns General information about the currently active ProPresenter instance
    */
@@ -71,14 +63,14 @@ class ProPresenter {
    * Requests the currently active announcement presentation.
    * @returns the currently active announcement presentation.
    */
-  announcementActive() {
+  announcementGetActive() {
     return this.getDataFromProPresenter("/v1/announcement/active", []);
   }
   /**
    * Requests the index of the current slide/cue within the currently active announcement.
    * @returns The index of the current slide/cue within the currently active announcement.
    */
-  announcementSlideIndex() {
+  announcementGetSlideIndex() {
     return this.getDataFromProPresenter("/v1/announcement/slide_index", []);
   }
   /**
@@ -135,7 +127,7 @@ class ProPresenter {
    * Requests the current state of the active announcement timeline.
    * @returns The current state of the active announcement timeline.
    */
-  announcementActiveTimelineOperation() {
+  announcementGetActiveTimelineOperation() {
     return this.getDataFromProPresenter(`/v1/announcement/active/timeline`, []);
   }
   /**
@@ -146,7 +138,7 @@ class ProPresenter {
    * Requests a list with all the configured audio playlists.
    * @returns a list with all the configured audio playlists.
    */
-  audioPlaylists() {
+  audioGetPlaylists() {
     return this.getDataFromProPresenter(`/v1/audio/playlists`, []);
   }
   /**
@@ -154,7 +146,7 @@ class ProPresenter {
    * @param {string} playlist_id
    * @returns a list of all the audio items in the specified audio playlist.
    */
-  audioPlaylistsByPlaylistId(playlist_id) {
+  audioGetPlaylistsByPlaylistId(playlist_id) {
     return this.getDataFromProPresenter(
       `/v1/audio/playlists/${playlist_id}`,
       []
@@ -165,7 +157,7 @@ class ProPresenter {
    * @param {string} playlist_id
    * @returns a chunked data update every time the specified audio playlist changes.
    */
-  audioPlaylistsByPlaylistIdUpdates(playlist_id) {
+  audioGetPlaylistsByPlaylistIdUpdates(playlist_id) {
     return this.getDataFromProPresenter(
       `/v1/audio/playlists/${playlist_id}/updates`,
       []
@@ -175,14 +167,14 @@ class ProPresenter {
    * Requests the currently focused audio playlist
    * @returns The currently focused audio playlist
    */
-  audioPlaylistsFocused() {
+  audioGetPlaylistsFocused() {
     return this.getDataFromProPresenter(`/v1/audio/playlists/focused`, []);
   }
   /**
    * Requests the currently active audio playlist
    * @returns The currently active audio playlist
    */
-  audioPlaylistsActive() {
+  audioGetPlaylistsActive() {
     return this.getDataFromProPresenter(`/v1/audio/playlists/active`, []);
   }
   /**
