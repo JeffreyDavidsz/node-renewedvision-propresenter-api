@@ -1,15 +1,14 @@
-// import fetch from "node-fetch";
-const fetch = (...args) =>
-  import("node-fetch").then(({ default: fetch }) => fetch(...args));
+export class ProPresenter {
+  ip: string;
+  port: number
 
-class ProPresenter {
-  constructor(ip, port) {
+  constructor(ip: string, port: number) {
     this.ip = ip;
     this.port = port;
   }
 
   // API wrapper function
-  getDataFromProPresenter = (path, userOptions) => {
+  getDataFromProPresenter = (path: string, userOptions: any) => {
     if (!this.ip || !this.port) {
       return { error: "Missing IP and/or Port." };
     }
@@ -312,6 +311,5 @@ class ProPresenter {
       []
     );
   }
-}
 
-module.exports = ProPresenter;
+}
