@@ -1,3 +1,7 @@
+# manual
+/docs
+.DS_Store
+
 # Logs
 logs
 *.log
