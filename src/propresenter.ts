@@ -1,3 +1,8 @@
+import fetch from "node-fetch";
+
+// type JSONValue = string | number | boolean | { [x: string]: JSONValue } | Array<JSONValue> | Promise<string | number | boolean | { [x: string]: JSONValue; } | JSONValue[]>
+export type JSONValue = Promise<string | number | boolean | { [x: string]: JSONValue; } | JSONValue[]>
+
 export class ProPresenter {
   ip: string;
   port: number
@@ -14,10 +19,7 @@ export class ProPresenter {
    * @param userOptions 
    * @returns Promise from fetch
    */
-  getDataFromProPresenter = (path: string, userOptions: any) => {
-    if (!this.ip || !this.port) {
-      return { error: "Missing IP and/or Port." };
-    }
+  getDataFromProPresenter = (path: string, userOptions: any): JSONValue => {
     // Define default options
     const defaultOptions = {};
     // Define default headers
@@ -43,11 +45,11 @@ export class ProPresenter {
         }
         throw new Error("Something went wrong");
       })
-      .then((responseJson) => {
-        responseJson.success = path;
+      .then((responseJson: JSONValue) => {
+        responseJson['success'] = path;
         return responseJson;
       })
-      .catch((error) => {
+      .catch((error: string) => {
         return error;
       });
   };
@@ -112,7 +114,7 @@ export class ProPresenter {
    * Triggers the specified cue in the currently active announcement presentation.
    * @param {string} index
    */
-  announcementActiveIndexTrigger(index) {
+  announcementActiveIndexTrigger(index: string | number) {
     return this.getDataFromProPresenter(
       `/v1/announcement/active/${index}/trigger`,
       []
