@@ -1,4 +1,5 @@
-# RenewedVision ProPresenter API wrapper
+# UNDER CONSTRUCTION, ONLY FIRST PART OF API IS INCORPORATED
+## RenewedVision ProPresenter API wrapper
 
 Typescript wrapper for Node.js.
 
