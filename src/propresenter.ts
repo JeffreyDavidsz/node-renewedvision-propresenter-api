@@ -1,5 +1,3 @@
-import fetch from "node-fetch";
-
 // type JSONValue = string | number | boolean | { [x: string]: JSONValue } | Array<JSONValue> | Promise<string | number | boolean | { [x: string]: JSONValue; } | JSONValue[]>
 export type JSONValue = Promise<string | number | boolean | { [x: string]: JSONValue; } | JSONValue[]>
 

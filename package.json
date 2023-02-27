@@ -1,6 +1,6 @@
 {
   "name": "renewedvision-propresenter",
-  "version": "7.0.0",
+  "version": "7.1.0",
   "description": "RenewedVision ProPresenter API wrapper",
   "keywords": [
     "renewedvision",
@@ -30,13 +30,16 @@
     "/dist"
   ],
   "dependencies": {
-    "@types/node-fetch": "^2.6.2",
-    "node-fetch": "^3.3.0",
     "typescript": "^4.9.5"
   },
   "devDependencies": {
     "npm": "^9.5.1",
     "typedoc": "^0.23.26",
     "typedoc-plugin-markdown": "^3.14.0"
-  }
+  },
+  "engines": {
+		"npm": "please-use-yarn",
+		"yarn": "^1.22",
+		"node": ">=18.12 <19"
+	}
 }
