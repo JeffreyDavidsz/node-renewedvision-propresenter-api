@@ -79,7 +79,7 @@ ProPresenter.version().then((result) => {
 
 #### Defined in
 
-[propresenter.ts:5](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L5)
+[propresenter.ts:10](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L10)
 
 ## Properties
 
@@ -89,7 +89,7 @@ ProPresenter.version().then((result) => {
 
 #### Defined in
 
-[propresenter.ts:2](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L2)
+[propresenter.ts:7](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L7)
 
 ___
 
@@ -99,29 +99,29 @@ ___
 
 #### Defined in
 
-[propresenter.ts:3](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L3)
+[propresenter.ts:8](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L8)
 
 ## Methods
 
 ### announcementActiveFocus
 
-▸ **announcementActiveFocus**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **announcementActiveFocus**(): `JSONValue`
 
 Focuses the currently active announcement presentation.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:84](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L84)
+[propresenter.ts:86](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L86)
 
 ___
 
 ### announcementActiveIndexTrigger
 
-▸ **announcementActiveIndexTrigger**(`index`): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **announcementActiveIndexTrigger**(`index`): `JSONValue`
 
 Triggers the specified cue in the currently active announcement presentation.
 
@@ -129,21 +129,21 @@ Triggers the specified cue in the currently active announcement presentation.
 
 | Name | Type |
 | :------ | :------ |
-| `index` | `any` |
+| `index` | `string` \| `number` |
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:115](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L115)
+[propresenter.ts:117](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L117)
 
 ___
 
 ### announcementActiveTimelineOperation
 
-▸ **announcementActiveTimelineOperation**(`operation`): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **announcementActiveTimelineOperation**(`operation`): `JSONValue`
 
 Performs the requested timeline operation for the active announcment presentation.
 
@@ -155,155 +155,155 @@ Performs the requested timeline operation for the active announcment presentatio
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:125](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L125)
+[propresenter.ts:127](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L127)
 
 ___
 
 ### announcementGetActive
 
-▸ **announcementGetActive**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **announcementGetActive**(): `JSONValue`
 
 Requests the currently active announcement presentation.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 the currently active announcement presentation.
 
 #### Defined in
 
-[propresenter.ts:71](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L71)
+[propresenter.ts:73](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L73)
 
 ___
 
 ### announcementGetActiveTimelineOperation
 
-▸ **announcementGetActiveTimelineOperation**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **announcementGetActiveTimelineOperation**(): `JSONValue`
 
 Requests the current state of the active announcement timeline.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 The current state of the active announcement timeline.
 
 #### Defined in
 
-[propresenter.ts:135](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L135)
+[propresenter.ts:137](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L137)
 
 ___
 
 ### announcementGetSlideIndex
 
-▸ **announcementGetSlideIndex**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **announcementGetSlideIndex**(): `JSONValue`
 
 Requests the index of the current slide/cue within the currently active announcement.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 The index of the current slide/cue within the currently active announcement.
 
 #### Defined in
 
-[propresenter.ts:78](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L78)
+[propresenter.ts:80](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L80)
 
 ___
 
 ### announcementNextTrigger
 
-▸ **announcementNextTrigger**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **announcementNextTrigger**(): `JSONValue`
 
 Triggers the next cue in the active announcement presentation (if there is one).
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:96](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L96)
+[propresenter.ts:98](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L98)
 
 ___
 
 ### announcementPreviousTrigger
 
-▸ **announcementPreviousTrigger**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **announcementPreviousTrigger**(): `JSONValue`
 
 Triggers the previous cue in the currently active announcement presentation (if there is one).
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:105](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L105)
+[propresenter.ts:107](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L107)
 
 ___
 
 ### announcementTrigger
 
-▸ **announcementTrigger**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **announcementTrigger**(): `JSONValue`
 
 Retriggers the currently active announcement presentation (starts from the beginning).
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:90](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L90)
+[propresenter.ts:92](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L92)
 
 ___
 
 ### audioGetPlaylists
 
-▸ **audioGetPlaylists**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioGetPlaylists**(): `JSONValue`
 
 Requests a list with all the configured audio playlists.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 a list with all the configured audio playlists.
 
 #### Defined in
 
-[propresenter.ts:146](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L146)
+[propresenter.ts:148](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L148)
 
 ___
 
 ### audioGetPlaylistsActive
 
-▸ **audioGetPlaylistsActive**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioGetPlaylistsActive**(): `JSONValue`
 
 Requests the currently active audio playlist
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 The currently active audio playlist
 
 #### Defined in
 
-[propresenter.ts:182](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L182)
+[propresenter.ts:184](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L184)
 
 ___
 
 ### audioGetPlaylistsByPlaylistId
 
-▸ **audioGetPlaylistsByPlaylistId**(`playlist_id`): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioGetPlaylistsByPlaylistId**(`playlist_id`): `JSONValue`
 
 Requests a list of all the audio items in the specified audio playlist.
 
@@ -315,19 +315,19 @@ Requests a list of all the audio items in the specified audio playlist.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 a list of all the audio items in the specified audio playlist.
 
 #### Defined in
 
-[propresenter.ts:154](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L154)
+[propresenter.ts:156](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L156)
 
 ___
 
 ### audioGetPlaylistsByPlaylistIdUpdates
 
-▸ **audioGetPlaylistsByPlaylistIdUpdates**(`playlist_id`): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioGetPlaylistsByPlaylistIdUpdates**(`playlist_id`): `JSONValue`
 
 Requests a chunked data update every time the specified audio playlist changes.
 
@@ -339,53 +339,53 @@ Requests a chunked data update every time the specified audio playlist changes.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 a chunked data update every time the specified audio playlist changes.
 
 #### Defined in
 
-[propresenter.ts:165](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L165)
+[propresenter.ts:167](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L167)
 
 ___
 
 ### audioGetPlaylistsFocused
 
-▸ **audioGetPlaylistsFocused**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioGetPlaylistsFocused**(): `JSONValue`
 
 Requests the currently focused audio playlist
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 The currently focused audio playlist
 
 #### Defined in
 
-[propresenter.ts:175](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L175)
+[propresenter.ts:177](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L177)
 
 ___
 
 ### audioPlaylistsActiveFocus
 
-▸ **audioPlaylistsActiveFocus**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioPlaylistsActiveFocus**(): `JSONValue`
 
 Focuses the active audio playlist.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:203](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L203)
+[propresenter.ts:205](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L205)
 
 ___
 
 ### audioPlaylistsActiveIdTrigger
 
-▸ **audioPlaylistsActiveIdTrigger**(`id`): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioPlaylistsActiveIdTrigger**(`id`): `JSONValue`
 
 Triggers the specified item in the active audio playlist.
 
@@ -401,65 +401,65 @@ id
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:294](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L294)
+[propresenter.ts:296](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L296)
 
 ___
 
 ### audioPlaylistsActiveNextTrigger
 
-▸ **audioPlaylistsActiveNextTrigger**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioPlaylistsActiveNextTrigger**(): `JSONValue`
 
 Triggers the next item in the active audio playlist.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:275](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L275)
+[propresenter.ts:277](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L277)
 
 ___
 
 ### audioPlaylistsActiveTrigger
 
-▸ **audioPlaylistsActiveTrigger**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioPlaylistsActiveTrigger**(): `JSONValue`
 
 Triggers the active audio playlist (restarts from the beginning).
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:228](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L228)
+[propresenter.ts:230](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L230)
 
 ___
 
 ### audioPlaylistsActivedPreviousTrigger
 
-▸ **audioPlaylistsActivedPreviousTrigger**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioPlaylistsActivedPreviousTrigger**(): `JSONValue`
 
 Triggers the previous item in the active audio playlist.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:284](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L284)
+[propresenter.ts:286](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L286)
 
 ___
 
 ### audioPlaylistsByPlaylistIdFocus
 
-▸ **audioPlaylistsByPlaylistIdFocus**(`playlist_id`): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioPlaylistsByPlaylistIdFocus**(`playlist_id`): `JSONValue`
 
 Focuses the specified audio playlist.
 
@@ -471,17 +471,17 @@ Focuses the specified audio playlist.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:210](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L210)
+[propresenter.ts:212](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L212)
 
 ___
 
 ### audioPlaylistsByPlaylistIdNextTrigger
 
-▸ **audioPlaylistsByPlaylistIdNextTrigger**(`playlist_id`): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioPlaylistsByPlaylistIdNextTrigger**(`playlist_id`): `JSONValue`
 
 Triggers the next item in the specified audio playlist.
 
@@ -493,17 +493,17 @@ Triggers the next item in the specified audio playlist.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:304](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L304)
+[propresenter.ts:306](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L306)
 
 ___
 
 ### audioPlaylistsByPlaylistIdPreviousTrigger
 
-▸ **audioPlaylistsByPlaylistIdPreviousTrigger**(`playlist_id`): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioPlaylistsByPlaylistIdPreviousTrigger**(`playlist_id`): `JSONValue`
 
 Triggers the previous item in the specified audio playlist.
 
@@ -515,17 +515,17 @@ Triggers the previous item in the specified audio playlist.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:314](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L314)
+[propresenter.ts:316](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L316)
 
 ___
 
 ### audioPlaylistsByPlaylistIdTrigger
 
-▸ **audioPlaylistsByPlaylistIdTrigger**(`playlist_id`): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioPlaylistsByPlaylistIdTrigger**(`playlist_id`): `JSONValue`
 
 Triggers the specified audio playlist.
 
@@ -537,17 +537,17 @@ Triggers the specified audio playlist.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:238](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L238)
+[propresenter.ts:240](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L240)
 
 ___
 
 ### audioPlaylistsFocusedIdTrigger
 
-▸ **audioPlaylistsFocusedIdTrigger**(`id`): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioPlaylistsFocusedIdTrigger**(`id`): `JSONValue`
 
 Triggers the specified item in the focused audio playlist.
 
@@ -563,97 +563,97 @@ id
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:266](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L266)
+[propresenter.ts:268](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L268)
 
 ___
 
 ### audioPlaylistsFocusedNextTrigger
 
-▸ **audioPlaylistsFocusedNextTrigger**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioPlaylistsFocusedNextTrigger**(): `JSONValue`
 
 Triggers the next item in the focused audio playlist.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:247](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L247)
+[propresenter.ts:249](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L249)
 
 ___
 
 ### audioPlaylistsFocusedPreviousTrigger
 
-▸ **audioPlaylistsFocusedPreviousTrigger**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioPlaylistsFocusedPreviousTrigger**(): `JSONValue`
 
 Triggers the previous item in the focused audio playlist.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:256](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L256)
+[propresenter.ts:258](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L258)
 
 ___
 
 ### audioPlaylistsFocusedTrigger
 
-▸ **audioPlaylistsFocusedTrigger**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioPlaylistsFocusedTrigger**(): `JSONValue`
 
 Triggers the focused audio playlist.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:219](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L219)
+[propresenter.ts:221](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L221)
 
 ___
 
 ### audioPlaylistsNextFocus
 
-▸ **audioPlaylistsNextFocus**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioPlaylistsNextFocus**(): `JSONValue`
 
 Focuses the next audio playlist.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:188](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L188)
+[propresenter.ts:190](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L190)
 
 ___
 
 ### audioPlaylistsPreviousFocus
 
-▸ **audioPlaylistsPreviousFocus**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **audioPlaylistsPreviousFocus**(): `JSONValue`
 
 Focuses the previous audio playlist.
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 #### Defined in
 
-[propresenter.ts:194](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L194)
+[propresenter.ts:196](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L196)
 
 ___
 
 ### getDataFromProPresenter
 
-▸ **getDataFromProPresenter**(`path`, `userOptions`): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **getDataFromProPresenter**(`path`, `userOptions`): `JSONValue`
 
 API wrapper function, use fetch to send/retrieve the data from ProPresenter
 
@@ -666,29 +666,28 @@ API wrapper function, use fetch to send/retrieve the data from ProPresenter
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 Promise from fetch
 
 #### Defined in
 
-[propresenter.ts:17](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L17)
+[propresenter.ts:22](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L22)
 
 ___
 
 ### version
 
-▸ **version**(): `Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+▸ **version**(): `JSONValue`
 
 Requests the general information about the currently active ProPresenter instance
 
 #### Returns
 
-`Promise`<`any`\> \| { `error`: `string` = "Missing IP and/or Port." }
+`JSONValue`
 
 General information about the currently active ProPresenter instance
 
 #### Defined in
 
-[propresenter.ts:59](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/4d50e9d/src/propresenter.ts#L59)
-
+[propresenter.ts:61](https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api/blob/a05df53/src/propresenter.ts#L61)
