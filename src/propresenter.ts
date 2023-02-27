@@ -7,7 +7,13 @@ export class ProPresenter {
     this.port = port;
   }
 
-  // API wrapper function
+  // 
+  /**
+   * API wrapper function, use fetch to send/retrieve the data from ProPresenter
+   * @param path 
+   * @param userOptions 
+   * @returns Promise from fetch
+   */
   getDataFromProPresenter = (path: string, userOptions: any) => {
     if (!this.ip || !this.port) {
       return { error: "Missing IP and/or Port." };
