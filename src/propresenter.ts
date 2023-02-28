@@ -503,155 +503,617 @@ export class ProPresenter {
    * LOOKS
    */
 
+  /**
+   * Requests a list of all configured audience looks, except the live look.
+   * @returns A list of all configured audience looks, except the live look.
+   */
+  lookGet() {
+    return this.getDataFromProPresenter(`/v1/looks`, []);
+  }
+  /**
+   * Creates a new audience look with the specified details.
+   */
+  lookCreate() {
+    return this.getDataFromProPresenter(`/v1/looks`, { method: "POST" });
+  }
+  /**
+   * Requests the details of the currently live audience look.
+   * @returns The details of the currently live audience look.
+   */
+  lookGetCurrent() {
+    return this.getDataFromProPresenter(`/v1/looks/current`, []);
+  }
+  /**
+   * Requests the details of the currently live audience look.
+   * @returns The details of the currently live audience look.
+   */
+  lookSetCurrent() {
+    return this.getDataFromProPresenter(`/v1/looks/current`, { method: "PUT" });
+  }
+  /**
+   * Requests the details of the specified audience look.
+   * @param {string} id
+   * @returns The details of the specified audience look.
+   */
+  lookGetId(id: string) {
+    return this.getDataFromProPresenter(`/v1/looks${id}`, []);
+  }
+  /**
+   * Sets the details of the specified audience look.
+   * @param {string} id
+   */
+  lookSetId(id: string) {
+    return this.getDataFromProPresenter(`/v1/looks${id}`, { method: "PUT" });
+  }
+  /**
+   * Deletes the specified audience look from the saved looks.
+   * @param {string} id
+   */
+  lookDeleteId(id: string) {
+    return this.getDataFromProPresenter(`/v1/looks${id}`, { method: "DELETE" });
+  }
+  /**
+   * Triggers the specified audience look to make it the live/current look.
+   * @param {string} id
+   */
+  lookIdTrigger(id: string) {
+    return this.getDataFromProPresenter(`/v1/looks${id}/trigger`, []);
+  }
+  /**
+   * MACRO
+   */
+
+  /**
+   * Requests a list of all the configured macros.
+   * @returns A list of all the configured macros.
+   */
+  marcosGet() {
+    return this.getDataFromProPresenter(`/v1/macros`, []);
+  }
+  /**
+   * Requests the details of the specified macro.
+   * @param {string} id
+   * @returns The details of the specified macro.
+   */
+  marcosIdGet(id: string) {
+    return this.getDataFromProPresenter(`/v1/macros${id}`, []);
+  }
+  /**
+   * Sets the details of the specified macro.
+   * @param {string} id
+   */
+  marcosIdSet(id: string) {
+    return this.getDataFromProPresenter(`/v1/macros${id}`, { method: "PUT" });
+  }
+  /**
+   * Deletes the specified macro.
+   * @param {string} id
+   */
+  marcosIdDelete(id: string) {
+    return this.getDataFromProPresenter(`/v1/macros${id}`, {
+      method: "DELETE",
+    });
+  }
+  /**
+   * Triggers the specified macro.
+   * @param {string} id
+   */
+  marcosIdTriggerGet(id: string) {
+    return this.getDataFromProPresenter(`/v1/macros${id}/trigger`, []);
+  }
+  /**
+   * MASKS
+   */
+  /**
+   * Requests a list of all configured masks.
+   * @returns A list of all configured masks.
+   */
+  masksGet() {
+    return this.getDataFromProPresenter(`/v1/masks`, []);
+  }
+  /**
+   * Requests the details of the specified mask.
+   * @param {string} id
+   * @returns The details of the specified mask.
+   */
+  masksIdGet(id: string) {
+    return this.getDataFromProPresenter(`/v1/masks/${id}`, []);
+  }
+  /**
+   * Requests a thumbnail image of the specified mask at the given quality value.
+   * @param {string} id
+   * @returns A thumbnail image of the specified mask at the given quality value.
+   */
+  masksIdThumbnailGet(id: string) {
+    return this.getDataFromProPresenter(`/v1/masks/${id}/thumbnail`, []);
+  }
+  /**
+   * MEDIA
+   */
+  /**
+   * Requests a list of all the configured media playlists.
+   * @returns A list of all the configured media playlists.
+   */
+  mediaPlaylistsGet() {
+    return this.getDataFromProPresenter(`/v1/media/playlists`, []);
+  }
+  /**
+   * Requests a list of all the media items in the specified media playlist.
+   * @param {string} playlist_id
+   * @returns A list of all the media items in the specified media playlist.
+   */
+  mediaPlaylistByPlaylistIdGet(playlist_id: string) {
+    return this.getDataFromProPresenter(
+      `/v1/media/playlist/${playlist_id}`,
+      []
+    );
+  }
+  /**
+   * Requests a chunked data update every time the specified media playlist changes.
+   * @param {string} playlist_id
+   * @returns A chunked data update every time the specified media playlist changes.
+   */
+  mediaPlaylistByPlaylistIdUpdatesGet(playlist_id: string) {
+    return this.getDataFromProPresenter(
+      `/v1/media/playlist/${playlist_id}/updates`,
+      []
+    );
+  }
+  /**
+   * Requests a thumbnail image of the specified media item at the given quality value.
+   * @param {string} playlist_id
+   * @returns A thumbnail image of the specified media item at the given quality value.
+   */
+  mediaByUUIDThumbnailsGet(uuid: string) {
+    return this.getDataFromProPresenter(`/v1/media/${uuid}/thumbnail`, []);
+  }
+  /**
+   * Returns the identifier of the currently focused media playlist
+   * @returns The identifier of the currently focused media playlist
+   */
+  mediaPlaylistFocusedGet() {
+    return this.getDataFromProPresenter(`/v1/media/playlist/focused`, []);
+  }
+  /**
+   * Returns the identifier of the currently active media playlist.
+   * @returns The identifier of the currently active media playlist
+   */
+  mediaPlaylistActiveGet() {
+    return this.getDataFromProPresenter(`/v1/media/playlist/active`, []);
+  }
+  /**
+   * Sets the focus to the next media playlist.
+   */
+  mediaPlaylistNextFocus() {
+    return this.getDataFromProPresenter(`/v1/media/playlist/next/focus`, []);
+  }
+  /**
+   * Sets the focus to the previous media playlist.
+   */
+  mediaPlaylistPreviousFocus() {
+    return this.getDataFromProPresenter(
+      `/v1/media/playlist/previous/focus`,
+      []
+    );
+  }
+  /**
+   * Sets the focus to the active media playlist.
+   */
+  mediaPlaylistActiveFocus() {
+    return this.getDataFromProPresenter(`/v1/media/playlist/active/focus`, []);
+  }
+  /**
+   * Sets the focus to the specified media playlist.
+   * @param {string} playlist_id
+   */
+  mediaPlaylistPlaylistIdFocus(playlist_id: string) {
+    return this.getDataFromProPresenter(
+      `/v1/media/playlist/${playlist_id}/focus`,
+      []
+    );
+  }
+  /**
+   * Triggers the first item in the focused media playlist.
+   */
+  mediaPlaylistFocusedTrigger() {
+    return this.getDataFromProPresenter(
+      `/v1/media/playlist/focused/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the first item in the active media playlist.
+   */
+  mediaPlaylistActiveTrigger() {
+    return this.getDataFromProPresenter(
+      `/v1/media/playlist/active/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the first item in the specified media playlist.
+   * @param {string} playlist_id
+   */
+  mediaPlaylistPlaylistIdTrigger(playlist_id: string) {
+    return this.getDataFromProPresenter(
+      `/v1/media/playlist/${playlist_id}/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the next item in the focused media playlist.
+   */
+  mediaPlaylistFocusedNextTrigger() {
+    return this.getDataFromProPresenter(
+      `/v1/media/playlist/focused/next/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the previous item in the focused media playlist.
+   */
+  mediaPlaylistFocusedPreviousTrigger() {
+    return this.getDataFromProPresenter(
+      `/v1/media/playlist/focused/previous/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the specified item in the focused media playlist.
+   * @param {string} media_id
+   */
+  mediaPlaylistFocusedMediaIdTrigger(media_id: string) {
+    return this.getDataFromProPresenter(
+      `/v1/media/playlist/focused/${media_id}/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the next item in the active media playlist.
+   */
+  mediaPlaylistActiveNextTrigger() {
+    return this.getDataFromProPresenter(
+      `/v1/media/playlist/active/next/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the previous item in the active media playlist.
+   */
+  mediaPlaylistActivePreviousTrigger() {
+    return this.getDataFromProPresenter(
+      `/v1/media/playlist/active/previous/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the specified item in the active media playlist.
+   * @param {string} media_id
+   */
+  mediaPlaylistActiveMediaIdTrigger(media_id: string) {
+    return this.getDataFromProPresenter(
+      `/v1/media/playlist/active/${media_id}/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the next item in the specified media playlist.
+   * @param {string} playlist_id
+   */
+  mediaPlaylistPlaylistIdNextTrigger(playlist_id: string) {
+    return this.getDataFromProPresenter(
+      `/v1/media/playlist/${playlist_id}/next/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the previous item in the specified media playlist.
+   * @param {string} playlist_id
+   */
+  mediaPlaylistPlaylistIdPreviousTrigger(playlist_id: string) {
+    return this.getDataFromProPresenter(
+      `/v1/media/playlist/${playlist_id}/previous/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the previous item in the specified media playlist.
+   * @param {string} playlist_id
+   * @param {string} media_id
+   */
+  mediaPlaylistPlaylistIdMediaIdTrigger(playlist_id: string, media_id: string) {
+    return this.getDataFromProPresenter(
+      `/v1/media/playlist/${playlist_id}/${media_id}/trigger`,
+      []
+    );
+  }
+
+  /**
+   * MESSAGE
+   */
+
+  /**
+   * Requests a list of all configured messages.
+   * @returns A list of all configured messages.
+   */
+  messagesGet() {
+    return this.getDataFromProPresenter(`/v1/messages`, []);
+  }
+  /**
+   * Creates a new message with specified details.
+   * @param TODO
+   */
+  messagesCreate() {
+    return this.getDataFromProPresenter(`/v1/message`, { method: "POST" });
+  }
+  /**
+   * Requests the details of the specified message.
+   * @returns The details of the specified message.
+   * @param {string} id
+   */
+  messagesIdGet(id: string) {
+    return this.getDataFromProPresenter(`/v1/message${id}`, []);
+  }
+  /**
+   * Sets the details of the specified message.
+   * @param {string} id
+   */
+  messagesIdSet(id: string) {
+    return this.getDataFromProPresenter(`/v1/message${id}`, { method: "PUT" });
+  }
+  /**
+   * Deletes the specified message.
+   * @param {string} id
+   */
+  messagesIdDelete(id: string) {
+    return this.getDataFromProPresenter(`/v1/message${id}`, {
+      method: "DELETE",
+    });
+  }
+  /**
+   * Triggers / Shows the specified message.
+   * @param {string} id
+   */
+  messagesIdTrigger(id: string) {
+    return this.getDataFromProPresenter(`/v1/message${id}/trigger`, {
+      method: "POST",
+    });
+  }
+  /**
+   * Clears / Hides the specified message.
+   * @param {string} id
+   */
+  messagesIdClear(id: string) {
+    return this.getDataFromProPresenter(`/v1/message${id}/clear`, []);
+  }
+  /**
+   * MISCELLANEOUS
+   */
+
+  /**
+   * Executes the "Find My Mouse" operation.
+   */
+  findMyMouse() {
+    return this.getDataFromProPresenter(`/v1/find_my_mouse`, []);
+  }
+
+  /**
+   * PLAYLIST
+   */
+
+  /**
+   * Requests a list of all configured playlists.
+   * @returns A list of all configured playlists.
+   */
+  playlistsGet() {
+    return this.getDataFromProPresenter(`/v1/playlists`, []);
+  }
+  /**
+   * Creates a playlist with the specified details.
+   */
+  playlistsCreate() {
+    return this.getDataFromProPresenter(`/v1/playlists`, { method: "POST" });
+  }
+  /**
+   * Requests a list of the items in the specified playlist.
+   * @returns Alist of the items in the specified playlist.
+   */
+  playlistPlaylistIdGet(playlist_id: string) {
+    return this.getDataFromProPresenter(`/v1/playlist/${playlist_id}`, []);
+  }
+  /**
+   * Sets the contents of the specified playlist.
+   */
+  playlistPlaylistIdSet(playlist_id: string) {
+    return this.getDataFromProPresenter(`/v1/playlist/${playlist_id}`, {
+      method: "PUT",
+    });
+  }
+  /**
+   * Creates a playlist with the specified details underneath the specified playlist or playlist folder.
+   */
+  playlistPlaylistIdCreate(playlist_id: string) {
+    return this.getDataFromProPresenter(`/v1/playlist/${playlist_id}`, {
+      method: "POST",
+    });
+  }
+  /**
+   * Requests the details of the active playlist.
+   * @returns The details of the active playlist.
+   */
+  playlistActiveGet() {
+    return this.getDataFromProPresenter(`/v1/playlist/active`, []);
+  }
+  /**
+   * Requests the details of the currently focused playlist.
+   * @returns The details of the currently focused playlist.
+   */
+  playlistFocusedGet() {
+    return this.getDataFromProPresenter(`/v1/playlist/focused`, []);
+  }
+  /**
+   * Moves the focus to the next playlist.
+   */
+  playlistNextFocus() {
+    return this.getDataFromProPresenter(`/v1/playlist/next/focus`, []);
+  }
+  /**
+   * Moves the focus to the previous playlist.
+   */
+  playlistPreviousFocus() {
+    return this.getDataFromProPresenter(`/v1/playlist/previous/focus`, []);
+  }
+  /**
+   * Moves the focus to the currently active playlist for the presentation destination.
+   */
+  playlistActivePresentationFocus() {
+    return this.getDataFromProPresenter(
+      `/v1/playlist/active/presentation/focus`,
+      []
+    );
+  }
+  /**
+   * Moves the focus to the currently active playlist for the announcement destination.
+   */
+  playlistActiveAnnouncementFocus() {
+    return this.getDataFromProPresenter(
+      `/v1/playlist/active/announcement/focus`,
+      []
+    );
+  }
+  /**
+   * Triggers the first item in the currently focused playlist.
+   */
+  playlistFocusedTrigger() {
+    return this.getDataFromProPresenter(`/v1/playlist/focused/trigger`, []);
+  }
+  /**
+   * Triggers the first item in the currently active playlist for the presentation destination.
+   */
+  playlistActivePresentationTrigger() {
+    return this.getDataFromProPresenter(
+      `/v1/playlist/active/presentation/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the first item in the currently active playlist for the announcement destination.
+   */
+  playlistActiveAnnouncementTrigger() {
+    return this.getDataFromProPresenter(
+      `/v1/playlist/active/announcement/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the next item in the currently focused playlist.
+   */
+  playlistFocusedNextTrigger() {
+    return this.getDataFromProPresenter(
+      `/v1/playlist/focused/next/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the previous item in the currently focused playlist.
+   */
+  playlistFocusedPreviousTrigger() {
+    return this.getDataFromProPresenter(
+      `/v1/playlist/focused/previous/trigger`,
+      []
+    );
+  }
+  /**
+   * Requests a chunked data update every time the specified audio playlist changes.
+   * @param {string} identifier
+   * @returns A chunked data update every time the specified audio playlist changes.
+   */
+  playlistIdentifierUpdates(identifier: string) {
+    return this.getDataFromProPresenter(
+      `/v1/playlist/${identifier}/updates`,
+      []
+    );
+  }
+  /**
+   * Moves the focus to the specified playlist.
+   * @param {string} identifier
+   */
+  playlistIdentifierFocus(identifier: string) {
+    return this.getDataFromProPresenter(`/v1/playlist/${identifier}/focus`, []);
+  }
+  /**
+   * Triggers the first item in the specified playlist.
+   * @param {string} identifier
+   */
+  playlistIdentifierTrigger(identifier: string) {
+    return this.getDataFromProPresenter(
+      `/v1/playlist/${identifier}/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the next item in the specified playlist.
+   * @param {string} identifier
+   */
+  playlistIdentifierNextTrigger(identifier: string) {
+    return this.getDataFromProPresenter(
+      `/v1/playlist/${identifier}/next/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the previous item in the specified playlist.
+   * @param {string} identifier
+   */
+  playlistIdentifierPreviousTrigger(identifier: string) {
+    return this.getDataFromProPresenter(
+      `/v1/playlist/${identifier}/previous/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the specified item in the specified playlist.
+   * @param {string} identifier
+   * @param {string} index
+   */
+  playlistIdentifierIndexTrigger(identifier: string, index: string) {
+    return this.getDataFromProPresenter(
+      `/v1/playlist/${identifier}/${index}/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the specified item in the focused playlist.
+   * @param {string} index
+   */
+  playlistFocusedIndexTrigger(index: string) {
+    return this.getDataFromProPresenter(
+      `/v1/playlist/focused/${index}/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the specified item in the currently active playlist for the presentation destination.
+   * @param {string} index
+   */
+  playlistActivePresentationIndexTrigger(index: string) {
+    return this.getDataFromProPresenter(
+      `/v1/playlist/active/presentation/${index}/trigger`,
+      []
+    );
+  }
+  /**
+   * Triggers the specified item in the currently active playlist for the announcement destination.
+   * @param {string} index
+   */
+  playlistActiveAnnouncementIndexTrigger(index: string) {
+    return this.getDataFromProPresenter(
+      `/v1/playlist/active/announcement/${index}/trigger`,
+      []
+    );
+  }
   /*
-    GET/v1/looks
-    Requests a list of all configured audience looks, except the live look.
-    POST/v1/looks
-    Creates a new audience look with the specified details.
-    GET/v1/look/current
-    Requests the details of the currently live audience look.
-    PUT/v1/look/current
-    Sets the details of the currently live audience look.
-    GET/v1/look/{id}
-    Requests the details of the specified audience look.
-    PUT/v1/look/{id}
-    Sets the details of the specified audience look.
-    DELETE/v1/look/{id}
-    Deletes the specified audience look from the saved looks.
-    GET/v1/look/{id}/trigger
-    Triggers the specified audience look to make it the live/current look.
-    Macro
-    GET/v1/macros
-    Requests a list of all the configured macros.
-    GET/v1/macro/{id}
-    Requests the details of the specified macro.
-    PUT/v1/macro/{id}
-    Sets the details of the specified macro.
-    DELETE/v1/macro/{id}
-    Deletes the specified macro.
-    GET/v1/macro/{id}/trigger
-    Triggers the specified macro.
-    Masks
-    GET/v1/masks
-    Requests a list of all configured masks.
-    GET/v1/mask/{id}
-    Requests the details of the specified mask.
-    GET/v1/mask/{id}/thumbnail
-    Requests a thumbnail image of the specified mask at the given quality value.
-    Media
-    GET/v1/media/playlists
-    Requests a list of all the configured media playlists.
-    GET/v1/media/playlist/{playlist_id}
-    Requests a list of all the media items in the specified media playlist.
-    GET/v1/media/playlist/{playlist_id}/updates
-    Requests a chunked data update every time the specified media playlist changes.
-    GET/v1/media/{uuid}/thumbnail
-    Requests a thumbnail image of the specified media item at the given quality value.
-    GET/v1/media/playlist/focused
-    Returns the identifier of the currently focused media playlist
-    GET/v1/media/playlist/active
-    Returns the identifier of the currently active media playlist.
-    GET/v1/media/playlist/next/focus
-    Sets the focus to the next media playlist.
-    GET/v1/media/playlist/previous/focus
-    Sets the focus to the previous media playlist.
-    GET/v1/media/playlist/active/focus
-    Sets the focus to the active media playlist.
-    GET/v1/media/playlist/{playlist_id}/focus
-    Sets the focus to the specified media playlist.
-    GET/v1/media/playlist/focused/trigger
-    Triggers the first item in the focused media playlist.
-    GET/v1/media/playlist/active/trigger
-    Triggers the first item in the active media playlist.
-    GET/v1/media/playlist/{playlist_id}/trigger
-    Triggers the first item in the specified media playlist.
-    GET/v1/media/playlist/focused/next/trigger
-    Triggers the next item in the focused media playlist.
-    GET/v1/media/playlist/focused/previous/trigger
-    Triggers the previous item in the focused media playlist.
-    GET/v1/media/playlist/focused/{media_id}/trigger
-    Triggers the specified item in the focused media playlist.
-    GET/v1/media/playlist/active/next/trigger
-    Triggers the next item in the active media playlist.
-    GET/v1/media/playlist/active/previous/trigger
-    Triggers the previous item in the active media playlist.
-    GET/v1/media/playlist/active/{media_id}/trigger
-    Triggers the specified item in the active media playlist.
-    GET/v1/media/playlist/{playlist_id}/next/trigger
-    Triggers the next item in the specified media playlist.
-    GET/v1/media/playlist/{playlist_id}/previous/trigger
-    Triggers the previous item in the specified media playlist.
-    GET/v1/media/playlist/{playlist_id}/{media_id}/trigger
-    Triggers the specified item in the specified media playlist.
-    Message
-    GET/v1/messages
-    Requests a list of all configured messages.
-    POST/v1/messages
-    Creates a new message with specified details.
-    GET/v1/message/{id}
-    Requests the details of the specified message.
-    PUT/v1/message/{id}
-    Sets the details of the specified message.
-    DELETE/v1/message/{id}
-    Deletes the specified message.
-    POST/v1/message/{id}/trigger
-    Triggers / Shows the specified message.
-    GET/v1/message/{id}/clear
-    Clears / Hides the specified message.
-    Miscellaneous
-    GET/v1/find_my_mouse
-    Executes the "Find My Mouse" operation.
-    Playlist
-    GET/v1/playlists
-    Requests a list of all configured playlists.
-    POST/v1/playlists
-    Creates a playlist with the specified details.
-    GET/v1/playlist/{playlist_id}
-    Requests a list of the items in the specified playlist.
-    PUT/v1/playlist/{playlist_id}
-    Sets the contents of the specified playlist.
-    POST/v1/playlist/{playlist_id}
-    Creates a playlist with the specified details underneath the specified playlist or playlist folder.
-    GET/v1/playlist/active
-    Requests the details of the active playlist.
-    GET/v1/playlist/focused
-    Requests the details of the currently focused playlist.
-    GET/v1/playlist/next/focus
-    Moves the focus to the next playlist.
-    GET/v1/playlist/previous/focus
-    Moves the focus to the previous playlist.
-    GET/v1/playlist/active/presentation/focus
-    Moves the focus to the currently active playlist for the presentation destination.
-    GET/v1/playlist/active/announcement/focus
-    Moves the focus to the currently active playlist for the announcement destination.
-    GET/v1/playlist/focused/trigger
-    Triggers the first item in the currently focused playlist.
-    GET/v1/playlist/active/presentation/trigger
-    Triggers the first item in the currently active playlist for the presentation destination.
-    GET/v1/playlist/active/announcement/trigger
-    Triggers the first item in the currently active playlist for the announcement destination.
-    GET/v1/playlist/focused/next/trigger
-    Triggers the next item in the currently focused playlist.
-    GET/v1/playlist/focused/previous/trigger
-    Triggers the previous item in the currently focused playlist.
-    GET/v1/playlist/{identifier}/updates
-    Requests a chunked data update every time the specified audio playlist changes.
-    GET/v1/playlist/{identifier}/focus
-    Moves the focus to the specified playlist.
-    GET/v1/playlist/{identifier}/trigger
-    Triggers the first item in the specified playlist.
-    GET/v1/playlist/{identifier}/next/trigger
-    Triggers the next item in the specified playlist.
-    GET/v1/playlist/{identifier}/previous/trigger
-    Triggers the previous item in the specified playlist.
-    GET/v1/playlist/{identifier}/{index}/trigger
-    Triggers the specified item in the specified playlist.
-    GET/v1/playlist/focused/{index}/trigger
-    Triggers the specified item in the focused playlist.
-    GET/v1/playlist/active/presentation/{index}/trigger
-    Triggers the specified item in the currently active playlist for the presentation destination.
-    GET/v1/playlist/active/announcement/{index}/trigger
-    Triggers the specified item in the currently active playlist for the announcement destination.
+    
     Presentation
     GET/v1/presentation/active
     Requests the details of the currently active presentation.
@@ -715,6 +1177,7 @@ export class ProPresenter {
     Triggers the specified group of the active presentation.
     GET/v1/presentation/{uuid}/group/{group_id}/trigger
     Triggers the specified group of the specified presentation.
+
     Prop
     GET/v1/props
     Gets a list of all the props.
@@ -728,6 +1191,7 @@ export class ProPresenter {
     Clears the specified prop.
     GET/v1/prop/{id}/thumbnail
     Requests a thumbnail image of the specified prop at the given quality value.
+
     Stage
     GET/v1/stage/message
     Requests the currently active stage message.
@@ -751,6 +1215,7 @@ export class ProPresenter {
     Deletes the specified stage layout.
     GET/v1/stage/layout/{id}/thumbnail
     Requests a thumbnail image of the specified stage layout at the given quality value.
+
     Status
     GET/version
     Requests the general information about the currently active ProPresenter instance.
@@ -770,6 +1235,7 @@ export class ProPresenter {
     Requests the current/next slide text and image UUIDs.
     POST/v1/status/updates
     Aggregates the data from one or more streaming endpoints into a single streaming endpoint.
+
     Theme
     GET/v1/themes
     Requests a list of all configured themes and theme slides.
@@ -781,6 +1247,7 @@ export class ProPresenter {
     Sets the details of the specified theme slide within the specified theme.
     GET/v1/theme/{id}/slides/{theme_slide}/thumbnail
     Requests a thumbnail image of the specified theme slide at the given quality value.
+
     Timer
     GET/v1/timers
     Requests the details for all configured timers.
@@ -802,6 +1269,7 @@ export class ProPresenter {
     Requests the current system time.
     GET/v1/timer/video_countdown
     Requests the current value of the video countdown timer.
+
     Transport
     GET/v1/transport/{layer}/play
     Plays the content on the specified layer (presentation, announcement, audio).
@@ -823,6 +1291,7 @@ export class ProPresenter {
     Cancels the auto-advance for the specified layer (presentation, announcement).
     GET/v1/transport/{layer}/current
     Requests the details of the currently playing content for the specified layer (presentation, announcement, audio).
+
     Trigger
     GET/v1/trigger/media/next
     Triggers the next item in the currently active media playlist.
@@ -836,6 +1305,7 @@ export class ProPresenter {
     Triggers the next cue or item in the currently active playlist or library.
     GET/v1/trigger/previous
     Triggers the previous cue or item in the currently active playlist or library.
+
     Video Input
     GET/v1/video_inputs
     Requests the contents of the video inputs playlist.
