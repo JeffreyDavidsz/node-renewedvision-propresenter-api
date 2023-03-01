@@ -1,6 +1,9 @@
-export type JSONValue = Promise<
-  string | number | boolean | { [x: string]: JSONValue } | JSONValue[]
->;
+export type JSONValue =
+  | {
+      data: any;
+      status: number;
+    }
+  | Promise<JSONValue>;
 
 export class ProPresenter {
   ip: string;
@@ -15,14 +18,15 @@ export class ProPresenter {
   /**
    * API wrapper function, use fetch to send/retrieve the data from ProPresenter
    * @param path
-   * @param userOptions
+   * @param userOptions (optional)
    * @returns Promise from fetch
    */
-  getDataFromProPresenter = (path: string, userOptions: any): JSONValue => {
+  getDataFromProPresenter = (path: string, userOptions?: any): JSONValue => {
     // Define default options
     const defaultOptions = {};
     // Define default headers
     const defaultHeaders = {};
+    if (!userOptions) userOptions = [];
 
     const options = {
       // Merge options
@@ -38,18 +42,14 @@ export class ProPresenter {
     // Build Url
     const url = `http://${this.ip}:${this.port}${path}`;
     return fetch(url, options)
-      .then((response) => {
-        if (response.status === 200) {
-          return response.json();
-        }
-        throw new Error("Something went wrong");
-      })
-      .then((responseJson: JSONValue) => {
-        responseJson["success"] = path;
-        return responseJson;
-      })
-      .catch((error: string) => {
-        return error;
+      .then((response) =>
+        Promise.resolve({
+          data: response.json(),
+          status: response.status,
+        })
+      )
+      .then((res) => {
+        return res;
       });
   };
 
@@ -58,7 +58,7 @@ export class ProPresenter {
    * @returns General information about the currently active ProPresenter instance
    */
   version() {
-    return this.getDataFromProPresenter("/version", []);
+    return this.getDataFromProPresenter("/version");
   }
 
   /**
@@ -70,43 +70,39 @@ export class ProPresenter {
    * @returns the currently active announcement presentation.
    */
   announcementGetActive() {
-    return this.getDataFromProPresenter("/v1/announcement/active", []);
+    return this.getDataFromProPresenter("/v1/announcement/active");
   }
   /**
    * Requests the index of the current slide/cue within the currently active announcement.
    * @returns The index of the current slide/cue within the currently active announcement.
    */
   announcementGetSlideIndex() {
-    return this.getDataFromProPresenter("/v1/announcement/slide_index", []);
+    return this.getDataFromProPresenter("/v1/announcement/slide_index");
   }
   /**
    * Focuses the currently active announcement presentation.
    */
   announcementActiveFocus() {
-    return this.getDataFromProPresenter("/v1/announcement/active/focus", []);
+    return this.getDataFromProPresenter("/v1/announcement/active/focus");
   }
   /**
    * Retriggers the currently active announcement presentation (starts from the beginning).
    */
   announcementTrigger() {
-    return this.getDataFromProPresenter("/v1/announcement/active/trigger", []);
+    return this.getDataFromProPresenter("/v1/announcement/active/trigger");
   }
   /**
    * Triggers the next cue in the active announcement presentation (if there is one).
    */
   announcementNextTrigger() {
-    return this.getDataFromProPresenter(
-      "/v1/announcement/active/next/trigger",
-      []
-    );
+    return this.getDataFromProPresenter("/v1/announcement/active/next/trigger");
   }
   /**
    * Triggers the previous cue in the currently active announcement presentation (if there is one).
    */
   announcementPreviousTrigger() {
     return this.getDataFromProPresenter(
-      "/v1/announcement/active/previous/trigger",
-      []
+      "/v1/announcement/active/previous/trigger"
     );
   }
   /**
@@ -115,8 +111,7 @@ export class ProPresenter {
    */
   announcementActiveIndexTrigger(index: string | number) {
     return this.getDataFromProPresenter(
-      `/v1/announcement/active/${index}/trigger`,
-      []
+      `/v1/announcement/active/${index}/trigger`
     );
   }
   /**
@@ -125,8 +120,7 @@ export class ProPresenter {
    */
   announcementActiveTimelineOperation(operation) {
     return this.getDataFromProPresenter(
-      `/v1/announcement/active/timeline/${operation}`,
-      []
+      `/v1/announcement/active/timeline/${operation}`
     );
   }
   /**
@@ -134,7 +128,7 @@ export class ProPresenter {
    * @returns The current state of the active announcement timeline.
    */
   announcementGetActiveTimelineOperation() {
-    return this.getDataFromProPresenter(`/v1/announcement/active/timeline`, []);
+    return this.getDataFromProPresenter(`/v1/announcement/active/timeline`);
   }
   /**
    * AUDIO
@@ -145,7 +139,7 @@ export class ProPresenter {
    * @returns a list with all the configured audio playlists.
    */
   audioGetPlaylists() {
-    return this.getDataFromProPresenter(`/v1/audio/playlists`, []);
+    return this.getDataFromProPresenter(`/v1/audio/playlists`);
   }
   /**
    * Requests a list of all the audio items in the specified audio playlist.
@@ -153,10 +147,7 @@ export class ProPresenter {
    * @returns a list of all the audio items in the specified audio playlist.
    */
   audioGetPlaylistsByPlaylistId(playlist_id) {
-    return this.getDataFromProPresenter(
-      `/v1/audio/playlists/${playlist_id}`,
-      []
-    );
+    return this.getDataFromProPresenter(`/v1/audio/playlists/${playlist_id}`);
   }
   /**
    * Requests a chunked data update every time the specified audio playlist changes.
@@ -165,8 +156,7 @@ export class ProPresenter {
    */
   audioGetPlaylistsByPlaylistIdUpdates(playlist_id) {
     return this.getDataFromProPresenter(
-      `/v1/audio/playlists/${playlist_id}/updates`,
-      []
+      `/v1/audio/playlists/${playlist_id}/updates`
     );
   }
   /**
@@ -174,35 +164,32 @@ export class ProPresenter {
    * @returns The currently focused audio playlist
    */
   audioGetPlaylistsFocused() {
-    return this.getDataFromProPresenter(`/v1/audio/playlists/focused`, []);
+    return this.getDataFromProPresenter(`/v1/audio/playlists/focused`);
   }
   /**
    * Requests the currently active audio playlist
    * @returns The currently active audio playlist
    */
   audioGetPlaylistsActive() {
-    return this.getDataFromProPresenter(`/v1/audio/playlists/active`, []);
+    return this.getDataFromProPresenter(`/v1/audio/playlists/active`);
   }
   /**
    * Focuses the next audio playlist.
    */
   audioPlaylistsNextFocus() {
-    return this.getDataFromProPresenter(`/v1/audio/playlists/next/focus`, []);
+    return this.getDataFromProPresenter(`/v1/audio/playlists/next/focus`);
   }
   /**
    * Focuses the previous audio playlist.
    */
   audioPlaylistsPreviousFocus() {
-    return this.getDataFromProPresenter(
-      `/v1/audio/playlists/previous/focus`,
-      []
-    );
+    return this.getDataFromProPresenter(`/v1/audio/playlists/previous/focus`);
   }
   /**
    * Focuses the active audio playlist.
    */
   audioPlaylistsActiveFocus() {
-    return this.getDataFromProPresenter(`/v1/audio/playlists/active/focus`, []);
+    return this.getDataFromProPresenter(`/v1/audio/playlists/active/focus`);
   }
   /**
    * Focuses the specified audio playlist.
@@ -210,27 +197,20 @@ export class ProPresenter {
    */
   audioPlaylistsByPlaylistIdFocus(playlist_id) {
     return this.getDataFromProPresenter(
-      `/v1/audio/playlists/${playlist_id}/focus`,
-      []
+      `/v1/audio/playlists/${playlist_id}/focus`
     );
   }
   /**
    * Triggers the focused audio playlist.
    */
   audioPlaylistsFocusedTrigger() {
-    return this.getDataFromProPresenter(
-      `/v1/audio/playlists/focused/trigger`,
-      []
-    );
+    return this.getDataFromProPresenter(`/v1/audio/playlists/focused/trigger`);
   }
   /**
    * Triggers the active audio playlist (restarts from the beginning).
    */
   audioPlaylistsActiveTrigger() {
-    return this.getDataFromProPresenter(
-      `/v1/audio/playlists/active/trigger`,
-      []
-    );
+    return this.getDataFromProPresenter(`/v1/audio/playlists/active/trigger`);
   }
   /**
    * Triggers the specified audio playlist.
@@ -238,8 +218,7 @@ export class ProPresenter {
    */
   audioPlaylistsByPlaylistIdTrigger(playlist_id) {
     return this.getDataFromProPresenter(
-      `/v1/audio/playlists/${playlist_id}/trigger`,
-      []
+      `/v1/audio/playlists/${playlist_id}/trigger`
     );
   }
   /**
@@ -247,8 +226,7 @@ export class ProPresenter {
    */
   audioPlaylistsFocusedNextTrigger() {
     return this.getDataFromProPresenter(
-      `/v1/audio/playlists/focused/next/trigger`,
-      []
+      `/v1/audio/playlists/focused/next/trigger`
     );
   }
   /**
@@ -256,8 +234,7 @@ export class ProPresenter {
    */
   audioPlaylistsFocusedPreviousTrigger() {
     return this.getDataFromProPresenter(
-      `/v1/audio/playlists/focused/previous/trigger`,
-      []
+      `/v1/audio/playlists/focused/previous/trigger`
     );
   }
   /**
@@ -266,8 +243,7 @@ export class ProPresenter {
    */
   audioPlaylistsFocusedIdTrigger(id) {
     return this.getDataFromProPresenter(
-      `/v1/audio/playlists/focused/${id}/trigger`,
-      []
+      `/v1/audio/playlists/focused/${id}/trigger`
     );
   }
   /**
@@ -275,8 +251,7 @@ export class ProPresenter {
    */
   audioPlaylistsActiveNextTrigger() {
     return this.getDataFromProPresenter(
-      `/v1/audio/playlists/active/next/trigger`,
-      []
+      `/v1/audio/playlists/active/next/trigger`
     );
   }
   /**
@@ -284,8 +259,7 @@ export class ProPresenter {
    */
   audioPlaylistsActivedPreviousTrigger() {
     return this.getDataFromProPresenter(
-      `/v1/audio/playlists/active/previous/trigger`,
-      []
+      `/v1/audio/playlists/active/previous/trigger`
     );
   }
   /**
@@ -294,8 +268,7 @@ export class ProPresenter {
    */
   audioPlaylistsActiveIdTrigger(id) {
     return this.getDataFromProPresenter(
-      `/v1/audio/playlists/active/${id}/trigger`,
-      []
+      `/v1/audio/playlists/active/${id}/trigger`
     );
   }
   /**
@@ -304,8 +277,7 @@ export class ProPresenter {
    */
   audioPlaylistsByPlaylistIdNextTrigger(playlist_id) {
     return this.getDataFromProPresenter(
-      `/v1/audio/playlists/${playlist_id}/next/trigger`,
-      []
+      `/v1/audio/playlists/${playlist_id}/next/trigger`
     );
   }
   /**
@@ -314,8 +286,7 @@ export class ProPresenter {
    */
   audioPlaylistsByPlaylistIdPreviousTrigger(playlist_id) {
     return this.getDataFromProPresenter(
-      `/v1/audio/playlists/${playlist_id}/previous/trigger`,
-      []
+      `/v1/audio/playlists/${playlist_id}/previous/trigger`
     );
   }
 
@@ -328,21 +299,21 @@ export class ProPresenter {
    * @returns The current capture status and capture time.
    */
   captureGetStatus() {
-    return this.getDataFromProPresenter(`/v1/capture/status`, []);
+    return this.getDataFromProPresenter(`/v1/capture/status`);
   }
   /**
    * Performs the requested capture operation (start, stop).
    * @param operation (start, stop)
    */
   captureOperation(operation: "start" | "stop") {
-    return this.getDataFromProPresenter(`/v1/capture/${operation}`, []);
+    return this.getDataFromProPresenter(`/v1/capture/${operation}`);
   }
   /**
    * Requests the current capture settings.
    * @returns The current capture settings.
    */
   captureGetsettings() {
-    return this.getDataFromProPresenter(`/v1/capture/settings`, []);
+    return this.getDataFromProPresenter(`/v1/capture/settings`);
   }
   /**
    * Requests a list of all available capture modes for the capture type (disk, rtmp, resi).
@@ -350,7 +321,7 @@ export class ProPresenter {
    * @returns A list of all available capture modes for the capture type (disk, rtmp, resi).
    */
   captureEncodingsType(type: "disk" | "rtmp" | "resi") {
-    return this.getDataFromProPresenter(`/v1/capture/encodings/${type}`, []);
+    return this.getDataFromProPresenter(`/v1/capture/encodings/${type}`);
   }
   /**
    * CLEAR
@@ -369,7 +340,7 @@ export class ProPresenter {
       | "media"
       | "video_input"
   ) {
-    return this.getDataFromProPresenter(`/v1/clear/layer/${layer}`, []);
+    return this.getDataFromProPresenter(`/v1/clear/layer/${layer}`);
   }
   /**
    * Requests the details of the specified clear group.
@@ -377,7 +348,7 @@ export class ProPresenter {
    * @returns The details of the specified clear group.
    */
   clearGetGroupId(id: string) {
-    return this.getDataFromProPresenter(`/v1/clear/group/${id}`, []);
+    return this.getDataFromProPresenter(`/v1/clear/group/${id}`);
   }
   /**
    * Sets the details of the specified clear group.
@@ -404,7 +375,7 @@ export class ProPresenter {
    * @returns The image data for the icon of the specified clear group.
    */
   clearGetGroupIdIcon(id: string) {
-    return this.getDataFromProPresenter(`/v1/clear/group/${id}/icon`, []);
+    return this.getDataFromProPresenter(`/v1/clear/group/${id}/icon`);
   }
   /**
    * Sets the custom icon of the specified clear group.
@@ -421,14 +392,14 @@ export class ProPresenter {
    * @param {string} id (name, index or UUID)
    */
   clearGroupIdTrigger(id: string) {
-    return this.getDataFromProPresenter(`/v1/clear/group/${id}/trigger`, []);
+    return this.getDataFromProPresenter(`/v1/clear/group/${id}/trigger`);
   }
   /**
    * Requests a list of all the configured clear groups.
    * @returns A list of all the configured clear groups.
    */
   clearGetGroup() {
-    return this.getDataFromProPresenter(`/v1/clear/groups`, []);
+    return this.getDataFromProPresenter(`/v1/clear/groups`);
   }
   /**
    * DOUBLE CHECK THIS FOR MISSING PARAMS
@@ -446,7 +417,7 @@ export class ProPresenter {
    * @returns A list of all the configured global groups.
    */
   groupsGet() {
-    return this.getDataFromProPresenter(`/v1/groups`, []);
+    return this.getDataFromProPresenter(`/v1/groups`);
   }
 
   /**
@@ -458,7 +429,7 @@ export class ProPresenter {
    * @returns A list of all the configured libraries.
    */
   libraryGet() {
-    return this.getDataFromProPresenter(`/v1/libraries`, []);
+    return this.getDataFromProPresenter(`/v1/libraries`);
   }
   /**
    * Requests an array of all items in the specified library.
@@ -466,7 +437,7 @@ export class ProPresenter {
    * @returns An array of all items in the specified library.
    */
   libraryGetById(id: string) {
-    return this.getDataFromProPresenter(`/v1/library/${id}`, []);
+    return this.getDataFromProPresenter(`/v1/library/${id}`);
   }
 
   /**
@@ -479,8 +450,7 @@ export class ProPresenter {
     presentation_id: string
   ) {
     return this.getDataFromProPresenter(
-      `/v1/library/${library_id}/${presentation_id}/trigger`,
-      []
+      `/v1/library/${library_id}/${presentation_id}/trigger`
     );
   }
   /**
@@ -495,8 +465,7 @@ export class ProPresenter {
     cue: string
   ) {
     return this.getDataFromProPresenter(
-      `/v1/library/${library_id}/${presentation_id}/${cue}/trigger`,
-      []
+      `/v1/library/${library_id}/${presentation_id}/${cue}/trigger`
     );
   }
   /**
@@ -508,7 +477,7 @@ export class ProPresenter {
    * @returns A list of all configured audience looks, except the live look.
    */
   lookGet() {
-    return this.getDataFromProPresenter(`/v1/looks`, []);
+    return this.getDataFromProPresenter(`/v1/looks`);
   }
   /**
    * Creates a new audience look with the specified details.
@@ -521,7 +490,7 @@ export class ProPresenter {
    * @returns The details of the currently live audience look.
    */
   lookGetCurrent() {
-    return this.getDataFromProPresenter(`/v1/looks/current`, []);
+    return this.getDataFromProPresenter(`/v1/looks/current`);
   }
   /**
    * Requests the details of the currently live audience look.
@@ -536,7 +505,7 @@ export class ProPresenter {
    * @returns The details of the specified audience look.
    */
   lookGetId(id: string) {
-    return this.getDataFromProPresenter(`/v1/looks${id}`, []);
+    return this.getDataFromProPresenter(`/v1/looks${id}`);
   }
   /**
    * Sets the details of the specified audience look.
@@ -557,7 +526,7 @@ export class ProPresenter {
    * @param {string} id
    */
   lookIdTrigger(id: string) {
-    return this.getDataFromProPresenter(`/v1/looks${id}/trigger`, []);
+    return this.getDataFromProPresenter(`/v1/looks${id}/trigger`);
   }
   /**
    * MACRO
@@ -568,7 +537,7 @@ export class ProPresenter {
    * @returns A list of all the configured macros.
    */
   marcosGet() {
-    return this.getDataFromProPresenter(`/v1/macros`, []);
+    return this.getDataFromProPresenter(`/v1/macros`);
   }
   /**
    * Requests the details of the specified macro.
@@ -576,7 +545,7 @@ export class ProPresenter {
    * @returns The details of the specified macro.
    */
   marcosIdGet(id: string) {
-    return this.getDataFromProPresenter(`/v1/macros${id}`, []);
+    return this.getDataFromProPresenter(`/v1/macros${id}`);
   }
   /**
    * Sets the details of the specified macro.
@@ -599,7 +568,7 @@ export class ProPresenter {
    * @param {string} id
    */
   marcosIdTriggerGet(id: string) {
-    return this.getDataFromProPresenter(`/v1/macros${id}/trigger`, []);
+    return this.getDataFromProPresenter(`/v1/macros${id}/trigger`);
   }
   /**
    * MASKS
@@ -609,7 +578,7 @@ export class ProPresenter {
    * @returns A list of all configured masks.
    */
   masksGet() {
-    return this.getDataFromProPresenter(`/v1/masks`, []);
+    return this.getDataFromProPresenter(`/v1/masks`);
   }
   /**
    * Requests the details of the specified mask.
@@ -617,7 +586,7 @@ export class ProPresenter {
    * @returns The details of the specified mask.
    */
   masksIdGet(id: string) {
-    return this.getDataFromProPresenter(`/v1/masks/${id}`, []);
+    return this.getDataFromProPresenter(`/v1/masks/${id}`);
   }
   /**
    * Requests a thumbnail image of the specified mask at the given quality value.
@@ -625,7 +594,7 @@ export class ProPresenter {
    * @returns A thumbnail image of the specified mask at the given quality value.
    */
   masksIdThumbnailGet(id: string) {
-    return this.getDataFromProPresenter(`/v1/masks/${id}/thumbnail`, []);
+    return this.getDataFromProPresenter(`/v1/masks/${id}/thumbnail`);
   }
   /**
    * MEDIA
@@ -635,7 +604,7 @@ export class ProPresenter {
    * @returns A list of all the configured media playlists.
    */
   mediaPlaylistsGet() {
-    return this.getDataFromProPresenter(`/v1/media/playlists`, []);
+    return this.getDataFromProPresenter(`/v1/media/playlists`);
   }
   /**
    * Requests a list of all the media items in the specified media playlist.
@@ -643,10 +612,7 @@ export class ProPresenter {
    * @returns A list of all the media items in the specified media playlist.
    */
   mediaPlaylistByPlaylistIdGet(playlist_id: string) {
-    return this.getDataFromProPresenter(
-      `/v1/media/playlist/${playlist_id}`,
-      []
-    );
+    return this.getDataFromProPresenter(`/v1/media/playlist/${playlist_id}`);
   }
   /**
    * Requests a chunked data update every time the specified media playlist changes.
@@ -655,8 +621,7 @@ export class ProPresenter {
    */
   mediaPlaylistByPlaylistIdUpdatesGet(playlist_id: string) {
     return this.getDataFromProPresenter(
-      `/v1/media/playlist/${playlist_id}/updates`,
-      []
+      `/v1/media/playlist/${playlist_id}/updates`
     );
   }
   /**
@@ -665,42 +630,39 @@ export class ProPresenter {
    * @returns A thumbnail image of the specified media item at the given quality value.
    */
   mediaByUUIDThumbnailsGet(uuid: string) {
-    return this.getDataFromProPresenter(`/v1/media/${uuid}/thumbnail`, []);
+    return this.getDataFromProPresenter(`/v1/media/${uuid}/thumbnail`);
   }
   /**
    * Returns the identifier of the currently focused media playlist
    * @returns The identifier of the currently focused media playlist
    */
   mediaPlaylistFocusedGet() {
-    return this.getDataFromProPresenter(`/v1/media/playlist/focused`, []);
+    return this.getDataFromProPresenter(`/v1/media/playlist/focused`);
   }
   /**
    * Returns the identifier of the currently active media playlist.
    * @returns The identifier of the currently active media playlist
    */
   mediaPlaylistActiveGet() {
-    return this.getDataFromProPresenter(`/v1/media/playlist/active`, []);
+    return this.getDataFromProPresenter(`/v1/media/playlist/active`);
   }
   /**
    * Sets the focus to the next media playlist.
    */
   mediaPlaylistNextFocus() {
-    return this.getDataFromProPresenter(`/v1/media/playlist/next/focus`, []);
+    return this.getDataFromProPresenter(`/v1/media/playlist/next/focus`);
   }
   /**
    * Sets the focus to the previous media playlist.
    */
   mediaPlaylistPreviousFocus() {
-    return this.getDataFromProPresenter(
-      `/v1/media/playlist/previous/focus`,
-      []
-    );
+    return this.getDataFromProPresenter(`/v1/media/playlist/previous/focus`);
   }
   /**
    * Sets the focus to the active media playlist.
    */
   mediaPlaylistActiveFocus() {
-    return this.getDataFromProPresenter(`/v1/media/playlist/active/focus`, []);
+    return this.getDataFromProPresenter(`/v1/media/playlist/active/focus`);
   }
   /**
    * Sets the focus to the specified media playlist.
@@ -708,27 +670,20 @@ export class ProPresenter {
    */
   mediaPlaylistPlaylistIdFocus(playlist_id: string) {
     return this.getDataFromProPresenter(
-      `/v1/media/playlist/${playlist_id}/focus`,
-      []
+      `/v1/media/playlist/${playlist_id}/focus`
     );
   }
   /**
    * Triggers the first item in the focused media playlist.
    */
   mediaPlaylistFocusedTrigger() {
-    return this.getDataFromProPresenter(
-      `/v1/media/playlist/focused/trigger`,
-      []
-    );
+    return this.getDataFromProPresenter(`/v1/media/playlist/focused/trigger`);
   }
   /**
    * Triggers the first item in the active media playlist.
    */
   mediaPlaylistActiveTrigger() {
-    return this.getDataFromProPresenter(
-      `/v1/media/playlist/active/trigger`,
-      []
-    );
+    return this.getDataFromProPresenter(`/v1/media/playlist/active/trigger`);
   }
   /**
    * Triggers the first item in the specified media playlist.
@@ -736,8 +691,7 @@ export class ProPresenter {
    */
   mediaPlaylistPlaylistIdTrigger(playlist_id: string) {
     return this.getDataFromProPresenter(
-      `/v1/media/playlist/${playlist_id}/trigger`,
-      []
+      `/v1/media/playlist/${playlist_id}/trigger`
     );
   }
   /**
@@ -745,8 +699,7 @@ export class ProPresenter {
    */
   mediaPlaylistFocusedNextTrigger() {
     return this.getDataFromProPresenter(
-      `/v1/media/playlist/focused/next/trigger`,
-      []
+      `/v1/media/playlist/focused/next/trigger`
     );
   }
   /**
@@ -754,8 +707,7 @@ export class ProPresenter {
    */
   mediaPlaylistFocusedPreviousTrigger() {
     return this.getDataFromProPresenter(
-      `/v1/media/playlist/focused/previous/trigger`,
-      []
+      `/v1/media/playlist/focused/previous/trigger`
     );
   }
   /**
@@ -764,8 +716,7 @@ export class ProPresenter {
    */
   mediaPlaylistFocusedMediaIdTrigger(media_id: string) {
     return this.getDataFromProPresenter(
-      `/v1/media/playlist/focused/${media_id}/trigger`,
-      []
+      `/v1/media/playlist/focused/${media_id}/trigger`
     );
   }
   /**
@@ -773,8 +724,7 @@ export class ProPresenter {
    */
   mediaPlaylistActiveNextTrigger() {
     return this.getDataFromProPresenter(
-      `/v1/media/playlist/active/next/trigger`,
-      []
+      `/v1/media/playlist/active/next/trigger`
     );
   }
   /**
@@ -782,8 +732,7 @@ export class ProPresenter {
    */
   mediaPlaylistActivePreviousTrigger() {
     return this.getDataFromProPresenter(
-      `/v1/media/playlist/active/previous/trigger`,
-      []
+      `/v1/media/playlist/active/previous/trigger`
     );
   }
   /**
@@ -792,8 +741,7 @@ export class ProPresenter {
    */
   mediaPlaylistActiveMediaIdTrigger(media_id: string) {
     return this.getDataFromProPresenter(
-      `/v1/media/playlist/active/${media_id}/trigger`,
-      []
+      `/v1/media/playlist/active/${media_id}/trigger`
     );
   }
   /**
@@ -802,8 +750,7 @@ export class ProPresenter {
    */
   mediaPlaylistPlaylistIdNextTrigger(playlist_id: string) {
     return this.getDataFromProPresenter(
-      `/v1/media/playlist/${playlist_id}/next/trigger`,
-      []
+      `/v1/media/playlist/${playlist_id}/next/trigger`
     );
   }
   /**
@@ -812,8 +759,7 @@ export class ProPresenter {
    */
   mediaPlaylistPlaylistIdPreviousTrigger(playlist_id: string) {
     return this.getDataFromProPresenter(
-      `/v1/media/playlist/${playlist_id}/previous/trigger`,
-      []
+      `/v1/media/playlist/${playlist_id}/previous/trigger`
     );
   }
   /**
@@ -823,8 +769,7 @@ export class ProPresenter {
    */
   mediaPlaylistPlaylistIdMediaIdTrigger(playlist_id: string, media_id: string) {
     return this.getDataFromProPresenter(
-      `/v1/media/playlist/${playlist_id}/${media_id}/trigger`,
-      []
+      `/v1/media/playlist/${playlist_id}/${media_id}/trigger`
     );
   }
 
@@ -837,7 +782,7 @@ export class ProPresenter {
    * @returns A list of all configured messages.
    */
   messagesGet() {
-    return this.getDataFromProPresenter(`/v1/messages`, []);
+    return this.getDataFromProPresenter(`/v1/messages`);
   }
   /**
    * Creates a new message with specified details.
@@ -852,7 +797,7 @@ export class ProPresenter {
    * @param {string} id
    */
   messagesIdGet(id: string) {
-    return this.getDataFromProPresenter(`/v1/message${id}`, []);
+    return this.getDataFromProPresenter(`/v1/message${id}`);
   }
   /**
    * Sets the details of the specified message.
@@ -884,7 +829,7 @@ export class ProPresenter {
    * @param {string} id
    */
   messagesIdClear(id: string) {
-    return this.getDataFromProPresenter(`/v1/message${id}/clear`, []);
+    return this.getDataFromProPresenter(`/v1/message${id}/clear`);
   }
   /**
    * MISCELLANEOUS
@@ -894,7 +839,7 @@ export class ProPresenter {
    * Executes the "Find My Mouse" operation.
    */
   findMyMouse() {
-    return this.getDataFromProPresenter(`/v1/find_my_mouse`, []);
+    return this.getDataFromProPresenter(`/v1/find_my_mouse`);
   }
 
   /**
@@ -906,7 +851,7 @@ export class ProPresenter {
    * @returns A list of all configured playlists.
    */
   playlistsGet() {
-    return this.getDataFromProPresenter(`/v1/playlists`, []);
+    return this.getDataFromProPresenter(`/v1/playlists`);
   }
   /**
    * Creates a playlist with the specified details.
@@ -919,7 +864,7 @@ export class ProPresenter {
    * @returns Alist of the items in the specified playlist.
    */
   playlistPlaylistIdGet(playlist_id: string) {
-    return this.getDataFromProPresenter(`/v1/playlist/${playlist_id}`, []);
+    return this.getDataFromProPresenter(`/v1/playlist/${playlist_id}`);
   }
   /**
    * Sets the contents of the specified playlist.
@@ -942,34 +887,33 @@ export class ProPresenter {
    * @returns The details of the active playlist.
    */
   playlistActiveGet() {
-    return this.getDataFromProPresenter(`/v1/playlist/active`, []);
+    return this.getDataFromProPresenter(`/v1/playlist/active`);
   }
   /**
    * Requests the details of the currently focused playlist.
    * @returns The details of the currently focused playlist.
    */
   playlistFocusedGet() {
-    return this.getDataFromProPresenter(`/v1/playlist/focused`, []);
+    return this.getDataFromProPresenter(`/v1/playlist/focused`);
   }
   /**
    * Moves the focus to the next playlist.
    */
   playlistNextFocus() {
-    return this.getDataFromProPresenter(`/v1/playlist/next/focus`, []);
+    return this.getDataFromProPresenter(`/v1/playlist/next/focus`);
   }
   /**
    * Moves the focus to the previous playlist.
    */
   playlistPreviousFocus() {
-    return this.getDataFromProPresenter(`/v1/playlist/previous/focus`, []);
+    return this.getDataFromProPresenter(`/v1/playlist/previous/focus`);
   }
   /**
    * Moves the focus to the currently active playlist for the presentation destination.
    */
   playlistActivePresentationFocus() {
     return this.getDataFromProPresenter(
-      `/v1/playlist/active/presentation/focus`,
-      []
+      `/v1/playlist/active/presentation/focus`
     );
   }
   /**
@@ -977,23 +921,21 @@ export class ProPresenter {
    */
   playlistActiveAnnouncementFocus() {
     return this.getDataFromProPresenter(
-      `/v1/playlist/active/announcement/focus`,
-      []
+      `/v1/playlist/active/announcement/focus`
     );
   }
   /**
    * Triggers the first item in the currently focused playlist.
    */
   playlistFocusedTrigger() {
-    return this.getDataFromProPresenter(`/v1/playlist/focused/trigger`, []);
+    return this.getDataFromProPresenter(`/v1/playlist/focused/trigger`);
   }
   /**
    * Triggers the first item in the currently active playlist for the presentation destination.
    */
   playlistActivePresentationTrigger() {
     return this.getDataFromProPresenter(
-      `/v1/playlist/active/presentation/trigger`,
-      []
+      `/v1/playlist/active/presentation/trigger`
     );
   }
   /**
@@ -1001,26 +943,21 @@ export class ProPresenter {
    */
   playlistActiveAnnouncementTrigger() {
     return this.getDataFromProPresenter(
-      `/v1/playlist/active/announcement/trigger`,
-      []
+      `/v1/playlist/active/announcement/trigger`
     );
   }
   /**
    * Triggers the next item in the currently focused playlist.
    */
   playlistFocusedNextTrigger() {
-    return this.getDataFromProPresenter(
-      `/v1/playlist/focused/next/trigger`,
-      []
-    );
+    return this.getDataFromProPresenter(`/v1/playlist/focused/next/trigger`);
   }
   /**
    * Triggers the previous item in the currently focused playlist.
    */
   playlistFocusedPreviousTrigger() {
     return this.getDataFromProPresenter(
-      `/v1/playlist/focused/previous/trigger`,
-      []
+      `/v1/playlist/focused/previous/trigger`
     );
   }
   /**
@@ -1029,27 +966,21 @@ export class ProPresenter {
    * @returns A chunked data update every time the specified audio playlist changes.
    */
   playlistIdentifierUpdates(identifier: string) {
-    return this.getDataFromProPresenter(
-      `/v1/playlist/${identifier}/updates`,
-      []
-    );
+    return this.getDataFromProPresenter(`/v1/playlist/${identifier}/updates`);
   }
   /**
    * Moves the focus to the specified playlist.
    * @param {string} identifier
    */
   playlistIdentifierFocus(identifier: string) {
-    return this.getDataFromProPresenter(`/v1/playlist/${identifier}/focus`, []);
+    return this.getDataFromProPresenter(`/v1/playlist/${identifier}/focus`);
   }
   /**
    * Triggers the first item in the specified playlist.
    * @param {string} identifier
    */
   playlistIdentifierTrigger(identifier: string) {
-    return this.getDataFromProPresenter(
-      `/v1/playlist/${identifier}/trigger`,
-      []
-    );
+    return this.getDataFromProPresenter(`/v1/playlist/${identifier}/trigger`);
   }
   /**
    * Triggers the next item in the specified playlist.
@@ -1057,8 +988,7 @@ export class ProPresenter {
    */
   playlistIdentifierNextTrigger(identifier: string) {
     return this.getDataFromProPresenter(
-      `/v1/playlist/${identifier}/next/trigger`,
-      []
+      `/v1/playlist/${identifier}/next/trigger`
     );
   }
   /**
@@ -1067,8 +997,7 @@ export class ProPresenter {
    */
   playlistIdentifierPreviousTrigger(identifier: string) {
     return this.getDataFromProPresenter(
-      `/v1/playlist/${identifier}/previous/trigger`,
-      []
+      `/v1/playlist/${identifier}/previous/trigger`
     );
   }
   /**
@@ -1078,8 +1007,7 @@ export class ProPresenter {
    */
   playlistIdentifierIndexTrigger(identifier: string, index: string) {
     return this.getDataFromProPresenter(
-      `/v1/playlist/${identifier}/${index}/trigger`,
-      []
+      `/v1/playlist/${identifier}/${index}/trigger`
     );
   }
   /**
@@ -1088,8 +1016,7 @@ export class ProPresenter {
    */
   playlistFocusedIndexTrigger(index: string) {
     return this.getDataFromProPresenter(
-      `/v1/playlist/focused/${index}/trigger`,
-      []
+      `/v1/playlist/focused/${index}/trigger`
     );
   }
   /**
@@ -1098,8 +1025,7 @@ export class ProPresenter {
    */
   playlistActivePresentationIndexTrigger(index: string) {
     return this.getDataFromProPresenter(
-      `/v1/playlist/active/presentation/${index}/trigger`,
-      []
+      `/v1/playlist/active/presentation/${index}/trigger`
     );
   }
   /**
@@ -1108,69 +1034,233 @@ export class ProPresenter {
    */
   playlistActiveAnnouncementIndexTrigger(index: string) {
     return this.getDataFromProPresenter(
-      `/v1/playlist/active/announcement/${index}/trigger`,
-      []
+      `/v1/playlist/active/announcement/${index}/trigger`
+    );
+  }
+  /**
+   * PRESENTATION
+   */
+
+  /**
+   * Requests the details of the currently active presentation.
+   * @returns The details of the currently active presentation.
+   */
+  presentationActiveGet() {
+    return this.getDataFromProPresenter(`/v1/presentation/active`);
+  }
+  /**
+   * Gets the currently focused presentation.
+   * @returns The currently focused presentation.
+   */
+  presentationFocusedGet() {
+    return this.getDataFromProPresenter(`/v1/presentation/focused`);
+  }
+  /**
+   * Requests the index of the current slide/cue within the currently active presentation.
+   * @returns The index of the current slide/cue within the currently active presentation.
+   */
+  presentationSlideIndexGet() {
+    return this.getDataFromProPresenter(`/v1/presentation/slide_index`);
+  }
+  /**
+   * Requests the current chord chart image (if available) at the given quality value.
+   * @returns The current chord chart image (if available) at the given quality value.
+   */
+  presentationChordChartGet() {
+    return this.getDataFromProPresenter(`/v1/presentation/chord_chart`);
+  }
+  /**
+   * Requests a chunked data update every time the chord chart changes.
+   * @returns A chunked data update every time the chord chart changes.
+   */
+  presentationChordChartUpdates() {
+    return this.getDataFromProPresenter(`/v1/presentation/chord_chart/updates`);
+  }
+  /**
+   * Requests the details of the specified presentation.
+   * @param {string} uuid
+   * @returns The details of the specified presentation.
+   */
+  presentationUUIDGet(uuid: string) {
+    return this.getDataFromProPresenter(`/v1/presentation/${uuid}`);
+  }
+  /**
+   * Requests the current state of the active presentation timeline.
+   * @returns The current state of the active presentation timeline.
+   */
+  presentationActiveTimeline() {
+    return this.getDataFromProPresenter(`/v1/presentation/active/timeline`);
+  }
+  /**
+   * Requests the current state of the focused presentation timeline.
+   * @returns The current state of the focused presentation timeline.
+   */
+  presentationFocusedTimeline() {
+    return this.getDataFromProPresenter(`/v1/presentation/focused/timeline`);
+  }
+  /**
+   * Performs the requested timeline operation for the currently active presentation (play, pause, rewind).
+   * @param operation (play, pause, rewind)
+   */
+  presentationActiveTimelineOperation(operation: "play" | "pause" | "rewind") {
+    return this.getDataFromProPresenter(
+      `/v1/presentation/active/timeline/${operation}`
+    );
+  }
+  /**
+   * Performs the requested timeline operation for the currently focused presentation (play, pause, rewind).
+   * @param operation (play, pause, rewind)
+   */
+  presentationFocusedTimelineOperation(operation: "play" | "pause" | "rewind") {
+    return this.getDataFromProPresenter(
+      `/v1/presentation/focused/timeline/${operation}`
+    );
+  }
+  /**
+   * Performs the requested timeline operation for the specified presentation (play, pause, rewind).
+   * @param {string} uuid
+   * @param {string} operation (play, pause, rewind)
+   */
+  presentationUUIDFocusedTimelineOperation(
+    uuid: string,
+    operation: "play" | "pause" | "rewind"
+  ) {
+    return this.getDataFromProPresenter(
+      `/v1/presentation/${uuid}/timeline/${operation}`
+    );
+  }
+  /**
+   * Requests a thumbnail image of the specified cue inside the specified presentation at the given quality value.
+   * @param {string} uuid
+   * @param {string} index
+   * @retuns A thumbnail image of the specified cue inside the specified presentation at the given quality value.
+   */
+  presentationUUIDThumbnailIndex(uuid: string, index: string) {
+    return this.getDataFromProPresenter(
+      `/v1/presentation/${uuid}/thumbnail/${index}`
+    );
+  }
+
+  /**
+   * Sets the focus to the next presentation.
+   */
+  presentationNextFocus() {
+    return this.getDataFromProPresenter(`/v1/presentation/next/focus`);
+  }
+  /**
+   * Sets the focus to the previous presentation.
+   */
+  presentationPreviousFocus() {
+    return this.getDataFromProPresenter(`/v1/presentation/previous/focus`);
+  }
+  /**
+   * Sets the focus to the active presentation.
+   */
+  presentationActiveFocus() {
+    return this.getDataFromProPresenter(`/v1/presentation/active/focus`);
+  }
+  /**
+   * Sets the focus to the specified presentation.
+   * @param {string} uuid
+   */
+  presentationUUIDFocus(uuid: string) {
+    return this.getDataFromProPresenter(`/v1/presentation/${uuid}/focus`);
+  }
+  /**
+   * Triggers the focused presentation.
+   */
+  presentationFocusedTrigger() {
+    return this.getDataFromProPresenter(`/v1/presentation/focused/trigger`);
+  }
+  /**
+   * Triggers the next cue of the focused presentation.
+   */
+  presentationFocusedNextTrigger() {
+    return this.getDataFromProPresenter(
+      `/v1/presentation/focused/next/trigger`
+    );
+  }
+  /**
+   * Triggers the previous cue of the focused presentation.
+   */
+  presentationFocusedPreviousTrigger() {
+    return this.getDataFromProPresenter(
+      `/v1/presentation/focused/previous/trigger`
+    );
+  }
+  /**
+   * Triggers the specified cue of the focused presentation.
+   * @param {string} index
+   */
+  presentationFocusedIndexTrigger(index: string) {
+    return this.getDataFromProPresenter(
+      `/v1/presentation/focused/${index}/trigger`
+    );
+  }
+  /**
+   * Retriggers the active presentation from the start.
+   */
+  presentationActiveTrigger() {
+    return this.getDataFromProPresenter(`/v1/presentation/active/trigger`);
+  }
+  /**
+   * Triggers the next cue of the active presentation.
+   */
+  presentationActiveNextTrigger() {
+    return this.getDataFromProPresenter(`/v1/presentation/active/next/trigger`);
+  }
+  /**
+   * Triggers the previous cue of the active presentation.
+   */
+  presentationActivePreviousTrigger() {
+    return this.getDataFromProPresenter(
+      `/v1/presentation/active/previous/trigger`
+    );
+  }
+  /**
+   * Triggers the specified cue of the active presentation.
+   * @param {string} index
+   */
+  presentationActiveIndexTrigger(index: string) {
+    return this.getDataFromProPresenter(
+      `/v1/presentation/active/${index}/trigger`
+    );
+  }
+  /**
+   * Triggers the specified presentation.
+   * @param {string} uuid
+   */
+  presentationUUIDTrigger(uuid: string) {
+    return this.getDataFromProPresenter(`/v1/presentation/${uuid}/trigger`);
+  }
+  /**
+   * Triggers the next cue of the specified presentation.
+   */
+  presentationUUIDNextTrigger(uuid: string) {
+    return this.getDataFromProPresenter(
+      `/v1/presentation/${uuid}/next/trigger`
+    );
+  }
+  /**
+   * Triggers the previous cue of the specified presentation.
+   */
+  presentationUUIDPreviousTrigger(uuid: string) {
+    return this.getDataFromProPresenter(
+      `/v1/presentation/${uuid}/previous/trigger`
+    );
+  }
+  /**
+   * Triggers the specified cue of the specified presentation.
+   * @param {string} index
+   */
+  presentationUUIDIndexTrigger(uuid: string, index: string) {
+    return this.getDataFromProPresenter(
+      `/v1/presentation/${uuid}/${index}/trigger`
     );
   }
   /*
     
-    Presentation
-    GET/v1/presentation/active
-    Requests the details of the currently active presentation.
-    GET/v1/presentation/focused
-    Gets the currently focused presentation.
-    GET/v1/presentation/slide_index
-    Requests the index of the current slide/cue within the currently active presentation.
-    GET/v1/presentation/chord_chart
-    Requests the current chord chart image (if available) at the given quality value.
-    GET/v1/presentation/chord_chart/updates
-    Requests a chunked data update every time the chord chart changes.
-    GET/v1/presentation/{uuid}
-    Requests the details of the specified presentation.
-    GET/v1/presentation/active/timeline
-    Requests the current state of the active presentation timeline.
-    GET/v1/presentation/focused/timeline
-    Requests the current state of the focused presentation timeline.
-    GET/v1/presentation/active/timeline/{operation}
-    Performs the requested timeline operation for the active presentation.
-    GET/v1/presentation/focused/timeline/{operation}
-    Performs the requested timeline operation for the currently active presentation (play, pause, rewind).
-    GET/v1/presentation/{uuid}/timeline/{operation}
-    Performs the requested timeline operation for the specified presentation (play, pause, rewind).
-    GET/v1/presentation/{uuid}/thumbnail/{index}
-    Requests a thumbnail image of the specified cue inside the specified presentation at the given quality value.
-    GET/v1/presentation/next/focus
-    Sets the focus to the next presentation.
-    GET/v1/presentation/previous/focus
-    Sets the focus to the previous presentation.
-    GET/v1/presentation/active/focus
-    Sets the focus to the active presentation.
-    GET/v1/presentation/{uuid}/focus
-    Sets the focus to the specified presentation.
-    GET/v1/presentation/focused/trigger
-    Triggers the focused presentation.
-    GET/v1/presentation/focused/next/trigger
-    Triggers the next cue of the focused presentation.
-    GET/v1/presentation/focused/previous/trigger
-    Triggers the previous cue of the focused presentation.
-    GET/v1/presentation/focused/{index}/trigger
-    Triggers the specified cue of the focused presentation.
-    GET/v1/presentation/active/trigger
-    Retriggers the active presentation from the start.
-    GET/v1/presentation/active/next/trigger
-    Triggers the next cue of the active presentation.
-    GET/v1/presentation/active/previous/trigger
-    Triggers the previous cue of the active presentation.
-    GET/v1/presentation/active/{index}/trigger
-    Triggers the specified cue of the active presentation.
-    GET/v1/presentation/{uuid}/trigger
-    Triggers the specified presentation.
-    GET/v1/presentation/{uuid}/next/trigger
-    Triggers the next cue of the specified presentation.
-    GET/v1/presentation/{uuid}/previous/trigger
-    Triggers the previous cue of the specified presentation.
-    GET/v1/presentation/{uuid}/{index}/trigger
-    Triggers the specified cue of the specified presentation.
+    
     GET/v1/presentation/focused/group/{group_id}/trigger
     Triggers the specified group of the focused presentation.
     GET/v1/presentation/active/group/{group_id}/trigger
