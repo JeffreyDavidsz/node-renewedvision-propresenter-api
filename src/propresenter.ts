@@ -42,16 +42,15 @@ export class ProPresenter {
 
     // Build Url
     const url = `http://${this.ip}:${this.port}${path}`;
+    const resultObj: JSONValue = { data: null, status: null, command: path };
     return fetch(url, options)
-      .then((response) =>
-        Promise.resolve({
-          data: response.json(),
-          status: response.status,
-          command: path,
-        })
-      )
-      .then((res) => {
-        return res;
+      .then((response) => {
+        resultObj.status = response.status;
+        return response.json()
+      })
+      .then((result) => {
+        resultObj.data = result;
+        return resultObj;
       });
   };
 
