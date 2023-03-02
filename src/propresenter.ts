@@ -46,7 +46,7 @@ export class ProPresenter {
     return fetch(url, options)
       .then((response) => {
         resultObj.status = response.status;
-        return response.json()
+        return response.json();
       })
       .then((result) => {
         resultObj.data = result;
@@ -405,10 +405,35 @@ export class ProPresenter {
   /**
    * DOUBLE CHECK THIS FOR MISSING PARAMS
    * Create a clear group with the details specified.
+   * @param {sting} name
+   * @param {string[]} layers
+   * @param {boolean} stop_timeline_announcements
+   * @param {boolean} stop_timeline_presentation
+   * @param {boolean} clear_next_presentation
    * @returns The created group.
    */
-  clearCreateGroup() {
-    return this.getDataFromProPresenter(`/v1/clear/groups`, { method: "POST" });
+  clearCreateGroup(name: string, layers: string[], stop_timeline_announcements: boolean, stop_timeline_presentation: boolean, clear_next_presentation: boolean,) {
+    return this.getDataFromProPresenter(`/v1/clear/groups`, {
+      method: "POST",
+      body: {
+        id: {
+          id: "942C3FC3-C4B2-44F7-A55D-4CC913BB8A5D", // ignored
+          name: name,
+          index: 3, // ignored
+        },
+        icon: "All",
+        tint: {
+          red: 0,
+          green: 0.54,
+          blue: 0.87,
+          alpha: 1,
+        },
+        layers: layers,
+        stop_timeline_announcements: stop_timeline_announcements,
+        stop_timeline_presentation: stop_timeline_presentation,
+        clear_next_presentation: clear_next_presentation,
+      },
+    });
   }
   /**
    * GLOBAL GROUPS
@@ -480,12 +505,12 @@ export class ProPresenter {
   lookGet() {
     return this.getDataFromProPresenter(`/v1/looks`);
   }
-  /**
-   * Creates a new audience look with the specified details.
-   */
-  lookCreate() {
-    return this.getDataFromProPresenter(`/v1/looks`, { method: "POST" });
-  }
+  // /**
+  //  * Creates a new audience look with the specified details.
+  //  */
+  // lookCreate() {
+  //   return this.getDataFromProPresenter(`/v1/looks`, { method: "POST" });
+  // }
   /**
    * Requests the details of the currently live audience look.
    * @returns The details of the currently live audience look.
@@ -785,13 +810,13 @@ export class ProPresenter {
   messagesGet() {
     return this.getDataFromProPresenter(`/v1/messages`);
   }
-  /**
-   * Creates a new message with specified details.
-   * @param TODO
-   */
-  messagesCreate() {
-    return this.getDataFromProPresenter(`/v1/message`, { method: "POST" });
-  }
+  // /**
+  //  * Creates a new message with specified details.
+  //  * @param TODO
+  //  */
+  // messagesCreate() {
+  //   return this.getDataFromProPresenter(`/v1/message`, { method: "POST" });
+  // }
   /**
    * Requests the details of the specified message.
    * @returns The details of the specified message.
@@ -816,15 +841,15 @@ export class ProPresenter {
       method: "DELETE",
     });
   }
-  /**
-   * Triggers / Shows the specified message.
-   * @param {string} id
-   */
-  messagesIdTrigger(id: string) {
-    return this.getDataFromProPresenter(`/v1/message${id}/trigger`, {
-      method: "POST",
-    });
-  }
+  // /**
+  //  * Triggers / Shows the specified message.
+  //  * @param {string} id
+  //  */
+  // messagesIdTrigger(id: string) {
+  //   return this.getDataFromProPresenter(`/v1/message${id}/trigger`, {
+  //     method: "POST",
+  //   });
+  // }
   /**
    * Clears / Hides the specified message.
    * @param {string} id
@@ -854,12 +879,12 @@ export class ProPresenter {
   playlistsGet() {
     return this.getDataFromProPresenter(`/v1/playlists`);
   }
-  /**
-   * Creates a playlist with the specified details.
-   */
-  playlistsCreate() {
-    return this.getDataFromProPresenter(`/v1/playlists`, { method: "POST" });
-  }
+  // /**
+  //  * Creates a playlist with the specified details.
+  //  */
+  // playlistsCreate() {
+  //   return this.getDataFromProPresenter(`/v1/playlists`, { method: "POST" });
+  // }
   /**
    * Requests a list of the items in the specified playlist.
    * @returns Alist of the items in the specified playlist.
@@ -875,14 +900,14 @@ export class ProPresenter {
       method: "PUT",
     });
   }
-  /**
-   * Creates a playlist with the specified details underneath the specified playlist or playlist folder.
-   */
-  playlistPlaylistIdCreate(playlist_id: string) {
-    return this.getDataFromProPresenter(`/v1/playlist/${playlist_id}`, {
-      method: "POST",
-    });
-  }
+  // /**
+  //  * Creates a playlist with the specified details underneath the specified playlist or playlist folder.
+  //  */
+  // playlistPlaylistIdCreate(playlist_id: string) {
+  //   return this.getDataFromProPresenter(`/v1/playlist/${playlist_id}`, {
+  //     method: "POST",
+  //   });
+  // }
   /**
    * Requests the details of the active playlist.
    * @returns The details of the active playlist.

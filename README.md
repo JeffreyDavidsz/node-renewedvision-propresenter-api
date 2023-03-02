@@ -1,4 +1,5 @@
 # UNDER CONSTRUCTION, ONLY FIRST PART OF API IS INCORPORATED
+# POST COMMANDS AREN't INCULDED AT THIS POINT
 ## RenewedVision ProPresenter API wrapper
 
 Typescript wrapper for Node.js.
@@ -15,7 +16,14 @@ yarn add renewedvision-propresenter
 import { ProPresenter } from 'renewedvision-propresenter'
 
 ProPresenter.version().then((result) => {
-	console.log(result)
+	console.log(result);
+	/*
+		Example result;
+		{
+			"data":{"name":"MacBook-Pro","platform":"mac","os_version":"13.2.1","host_description":"ProPresenter 7.11","api_version":"v1"},
+			"status":200,
+			"command":"/version"}
+	*/
 })
 ```
 
