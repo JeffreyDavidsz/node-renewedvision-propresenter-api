@@ -2,6 +2,7 @@ export type JSONValue =
   | {
       data: any;
       status: number;
+      command: string;
     }
   | Promise<JSONValue>;
 
@@ -46,6 +47,7 @@ export class ProPresenter {
         Promise.resolve({
           data: response.json(),
           status: response.status,
+          command: path,
         })
       )
       .then((res) => {
