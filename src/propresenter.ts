@@ -55,14 +55,6 @@ export class ProPresenter {
   };
 
   /**
-   * Requests the general information about the currently active ProPresenter instance
-   * @returns General information about the currently active ProPresenter instance
-   */
-  version() {
-    return this.getDataFromProPresenter("/version");
-  }
-
-  /**
    * ANNOUNCEMENT
    */
 
@@ -412,7 +404,13 @@ export class ProPresenter {
    * @param {boolean} clear_next_presentation
    * @returns The created group.
    */
-  clearCreateGroup(name: string, layers: string[], stop_timeline_announcements: boolean, stop_timeline_presentation: boolean, clear_next_presentation: boolean,) {
+  clearCreateGroup(
+    name: string,
+    layers: string[],
+    stop_timeline_announcements: boolean,
+    stop_timeline_presentation: boolean,
+    clear_next_presentation: boolean
+  ) {
     return this.getDataFromProPresenter(`/v1/clear/groups`, {
       method: "POST",
       body: {
@@ -1284,73 +1282,252 @@ export class ProPresenter {
       `/v1/presentation/${uuid}/${index}/trigger`
     );
   }
+  /**
+   * Triggers the specified group of the focused presentation.
+   * @param {string} group_id
+   */
+  presentationFocusedGroupGroup_IdTrigger(group_id: string) {
+    return this.getDataFromProPresenter(
+      `/v1/presentation/focused/group/${group_id}/trigger`
+    );
+  }
+  /**
+   * Triggers the specified group of the active presentation.
+   * @param {string} group_id
+   */
+  presentationActiveGroupGroup_IdTrigger(group_id: string) {
+    return this.getDataFromProPresenter(
+      `/v1/presentation/active/group/${group_id}/trigger`
+    );
+  }
+  /**
+   * Triggers the specified group of the specified presentation.
+   * @param {string} uuid
+   * @param {string} group_id
+   */
+  presentationUUIDGroupGroup_IdTrigger(uuid: string, group_id: string) {
+    return this.getDataFromProPresenter(
+      `/v1/presentation/${uuid}/group/${group_id}/trigger`
+    );
+  }
+
+  /**
+   * PROP
+   */
+
+  /**
+   * Gets a list of all the props.
+   * @returns A list of all the props.
+   */
+  propGet() {
+    return this.getDataFromProPresenter(`/v1/props`);
+  }
+  /**
+   * Requests the details of the specified prop.
+   * @param id
+   * @returns The details of the specified prop.
+   */
+  propId(id: string) {
+    return this.getDataFromProPresenter(`/v1/prop/${id}`);
+  }
+
+  /**
+   * Deletes the specified prop.
+   * @param id
+   */
+  propIdDelete(id: string) {
+    return this.getDataFromProPresenter(`/v1/prop/${id}`, { method: "DELETE" });
+  }
+
+  /**
+   * Triggers the specified prop.
+   * @param id
+   */
+  propIdTrigger(id: string) {
+    return this.getDataFromProPresenter(`/v1/prop/${id}/trigger`);
+  }
+  /**
+   * Clears the specified prop.
+   * @param id
+   */
+  propIdClear(id: string) {
+    return this.getDataFromProPresenter(`/v1/prop/${id}/clear`);
+  }
+  /**
+   * Requests a thumbnail image of the specified prop at the given quality value.
+   * @param id
+   * @returns A thumbnail image of the specified prop at the given quality value.
+   */
+  propIdThumbnail(id: string) {
+    return this.getDataFromProPresenter(`/v1/prop/${id}/thumbnail`);
+  }
+
+  /**
+   * STAGE
+   */
+
+  /**
+   * Requests the currently active stage message.
+   * @returns The currently active stage message.
+   */
+  stageMessageGet() {
+    return this.getDataFromProPresenter(`/v1/stage/message`);
+  }
+  /**
+   * Shows the specified stage message on the configured stage screen.
+   */
+  stageMessage() {
+    return this.getDataFromProPresenter(`/v1/stage/message`, { method: "PUT" });
+  }
+  /**
+   * Hides the currently displayed stage message from the configured stage screen.
+   */
+  stageMessageHide() {
+    return this.getDataFromProPresenter(`/v1/stage/message`, {
+      method: "DELETE",
+    });
+  }
+  /**
+   * Requests the currently selected stage layout for each configured stage screen.
+   * @returns The currently selected stage layout for each configured stage screen.
+   */
+  stageLayoutMap() {
+    return this.getDataFromProPresenter(`/v1/stage/layout_map`);
+  }
+  /**
+   * Sets the specified stage message to the corresponding stage screens.
+   * NOT READY
+   */
+  stageLayoutMapSet() {
+    return this.getDataFromProPresenter(`/v1/stage/layout_map`, {
+      methid: "PUT",
+    });
+  }
+  /**
+   * Requests a list of the configured stage screens.
+   * @returns A list of the configured stage screens.
+   */
+  stageScreensGet() {
+    return this.getDataFromProPresenter(`/v1/stage/screens`);
+  }
+  /**
+   * Requests the current stage layout for the specified stage screen.
+   * @param id
+   * @returns The current stage layout for the specified stage screen.
+   */
+  stageScreenIdLayout(id: string) {
+    return this.getDataFromProPresenter(`/v1/stage/screen/${id}/layout`);
+  }
+  /**
+   * Sets the specified stage layout for the specified stage screen.
+   * @param id
+   * @param layout_id
+   */
+  stageScreenIdLayoutId(id: string, layout_id: string) {
+    return this.getDataFromProPresenter(
+      `/v1/stage/screen/${id}/layout/${layout_id}`
+    );
+  }
+
+  /**
+   * Requests a list of the configured stage layouts.
+   * @returns A list of the configured stage layouts.
+   */
+  stageLayoutsGet() {
+    return this.getDataFromProPresenter(`/v1/stage/layouts`);
+  }
+  /**
+   * Deletes the specified stage layout.
+   */
+  stageLayoutIdDelete(id: string) {
+    return this.getDataFromProPresenter(`/v1/stage/layout/${id}`, {
+      method: "DELETE",
+    });
+  }
+  /**
+   * Requests a thumbnail image of the specified stage layout at the given quality value.
+   * @returns A thumbnail image of the specified stage layout at the given quality value.
+   */
+  stageLayoutIdThumbnail(id: string) {
+    return this.getDataFromProPresenter(`/v1/stage/layout/${id}/thumbnail`);
+  }
+
+  /**
+   * STATUS
+   */
+
+  /**
+   * Requests the general information about the currently active ProPresenter instance
+   * @returns General information about the currently active ProPresenter instance
+   */
+  version() {
+    return this.getDataFromProPresenter(`/version`);
+  }
+
+  /**
+   * Requests the status of all available layers.
+   * @returns The status of all available layers.
+   */
+  statusLayers() {
+    return this.getDataFromProPresenter(`/v1/status/layers`);
+  }
+  /**
+   * Requests the status of the stage screens.
+   * @returns The status of the stage screens.
+   */
+  statusStageScreens() {
+    return this.getDataFromProPresenter(`/v1/status/stage_screens`);
+  }
+  /**
+   * Sets the status of the stage screens.
+   * NOT READY
+   */
+  statusStageScreensSet() {
+    return this.getDataFromProPresenter(`/v1/status/stage_screens`, {
+      method: "PUT",
+    });
+  }
+  /**
+   * Requests the status of the audience screens.
+   * @returns The status of the audience screens.
+   */
+  statusAudienceScreens() {
+    return this.getDataFromProPresenter(`/v1/status/audience_screens`);
+  }
+  /**
+   * Sets the status of the audience screens.
+   * NOT READY
+   */
+  statusAudienceScreensSet() {
+    return this.getDataFromProPresenter(`/v1/status/audience_screens`, {
+      method: "PUT",
+    });
+  }
+  /**
+   * Requests the details of all configured screens.
+   * @returns The details of all configured screens.
+   */
+  statusScreens() {
+    return this.getDataFromProPresenter(`/v1/status/screens`);
+  }
+  /**
+   * Requests the current/next slide text and image UUIDs.
+   * @returns The Requests the current/next slide text and image UUIDs.
+   */
+  statusSlide() {
+    return this.getDataFromProPresenter(`/v1/status/slide`);
+  }
+  /**
+   * Aggregates the data from one or more streaming endpoints into a single streaming endpoint.
+   * NOT READY
+   */
+  statusUpdate() {
+    return this.getDataFromProPresenter(`/v1/status/update`, {
+      method: "POST",
+    });
+  }
   /*
     
-    
-    GET/v1/presentation/focused/group/{group_id}/trigger
-    Triggers the specified group of the focused presentation.
-    GET/v1/presentation/active/group/{group_id}/trigger
-    Triggers the specified group of the active presentation.
-    GET/v1/presentation/{uuid}/group/{group_id}/trigger
-    Triggers the specified group of the specified presentation.
-
-    Prop
-    GET/v1/props
-    Gets a list of all the props.
-    GET/v1/prop/{id}
-    Requests the details of the specified prop.
-    DELETE/v1/prop/{id}
-    Deletes the specified prop.
-    GET/v1/prop/{id}/trigger
-    Triggers the specified prop.
-    GET/v1/prop/{id}/clear
-    Clears the specified prop.
-    GET/v1/prop/{id}/thumbnail
-    Requests a thumbnail image of the specified prop at the given quality value.
-
-    Stage
-    GET/v1/stage/message
-    Requests the currently active stage message.
-    PUT/v1/stage/message
-    Shows the specified stage message on the configured stage screen.
-    DELETE/v1/stage/message
-    Hides the currently displayed stage message from the configured stage screen.
-    GET/v1/stage/layout_map
-    Requests the currently selected stage layout for each configured stage screen.
-    PUT/v1/stage/layout_map
-    Sets the specified stage message to the corresponding stage screens.
-    GET/v1/stage/screens
-    Requests a list of the configured stage screens.
-    GET/v1/stage/screen/{id}/layout
-    Requests the current stage layout for the specified stage screen.
-    GET/v1/stage/screen/{id}/layout/{layout_id}
-    Sets the specified stage layout for the specified stage screen.
-    GET/v1/stage/layouts
-    Requests a list of the configured stage layouts.
-    DELETE/v1/stage/layout/{id}
-    Deletes the specified stage layout.
-    GET/v1/stage/layout/{id}/thumbnail
-    Requests a thumbnail image of the specified stage layout at the given quality value.
-
-    Status
-    GET/version
-    Requests the general information about the currently active ProPresenter instance.
-    GET/v1/status/layers
-    Requests the status of all available layers.
-    GET/v1/status/stage_screens
-    Requests the status of the stage screens.
-    PUT/v1/status/stage_screens
-    Sets the status of the stage screens.
-    GET/v1/status/audience_screens
-    Requests the status of the audience screens.
-    PUT/v1/status/audience_screens
-    Sets the status of the audience screens.
-    GET/v1/status/screens
-    Requests the details of all configured screens.
-    GET/v1/status/slide
-    Requests the current/next slide text and image UUIDs.
-    POST/v1/status/updates
-    Aggregates the data from one or more streaming endpoints into a single streaming endpoint.
 
     Theme
     GET/v1/themes
