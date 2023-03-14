@@ -1526,42 +1526,145 @@ export class ProPresenter {
       method: "POST",
     });
   }
+
+  /**
+   * THEME
+   */
+
+  /**
+   * Requests a list of all configured themes and theme slides.
+   * @returns A list of all configured themes and theme slides.
+   */
+  themesGet() {
+    return this.getDataFromProPresenter(`/v1/themes`);
+  }
+  /**
+   * Requests the details of the theme and theme slides.
+   * @param id
+   * @returns The details of the theme and theme slides.
+   */
+  themesIdGet(id: string) {
+    return this.getDataFromProPresenter(`/v1/themes/${id}`);
+  }
+  /**
+   * Requests the details of the specified theme slide within the specified theme.
+   * @param id
+   * @param theme_slide
+   * @returns The details of the specified theme slide within the specified theme.
+   */
+  themesIdSlidesThemeSlide(id: string, theme_slide: string) {
+    return this.getDataFromProPresenter(
+      `/v1/themes/${id}/slides/${theme_slide}`
+    );
+  }
+  /**
+   * Sets the details of the specified theme slide within the specified theme.
+   * @param id
+   * @param theme_slide
+   * NOT READY
+   */
+  themesIdSlidesThemeSlideSet(id: string, theme_slide: string) {
+    return this.getDataFromProPresenter(
+      `/v1/themes/${id}/slides/${theme_slide}`,
+      { method: "PUT" }
+    );
+  }
+  /**
+   * Requests a thumbnail image of the specified theme slide at the given quality value.
+   * @param id
+   * @param theme_slide
+   * @returns The details of the specified theme slide within the specified theme.
+   */
+  themesIdSlidesThemeSlideThumbnail(id: string, theme_slide: string) {
+    return this.getDataFromProPresenter(
+      `/v1/themes/${id}/slides/${theme_slide}/thumbnail`
+    );
+  }
+
+  /**
+   * TIMER
+   */
+
+  /**
+   * Requests the details for all configured timers.
+   * @returns The details for all configured timers.
+   */
+  timersGet() {
+    return this.getDataFromProPresenter(`/v1/timers`);
+  }
+  /**
+   * Creates a new timer with the specified details.
+   * @param
+   * NOT READY
+   */
+  timerCreate() {
+    return this.getDataFromProPresenter(`/v1/timers`, { method: "POST" });
+  }
+  /**
+   * Requests the current time for all configured timers.
+   * @returns The current time for all configured timers.
+   */
+  timersCurrent() {
+    return this.getDataFromProPresenter(`/v1/timers/current`);
+  }
+  /**
+   * Performs the requested operation for all configured timers.
+   * @param operation (start, stop, reset)
+   */
+  timersOperation(operation: "start" | "stop" | "reset") {
+    return this.getDataFromProPresenter(`/v1/timers/${operation}`);
+  }
+  /**
+   * Requests the details of the specified timer.
+   * @param id
+   * @returns The details of the specified timer.
+   */
+  timerIdGet(id: string) {
+    return this.getDataFromProPresenter(`/v1/timer/${id}`);
+  }
+  /**
+   * Sets the details of the specified timer.
+   * @param id
+   * NOT READY
+   */
+  timerIdSet(id: string) {
+    return this.getDataFromProPresenter(`/v1/timer/${id}`, { method: "PUT" });
+  }
+  /**
+   * Deletes the specified timer.
+   * @param id
+   */
+  timerIdDelete(id: string) {
+    return this.getDataFromProPresenter(`/v1/timer/${id}`, {
+      method: "DELETE",
+    });
+  }
+  /**
+   * Performs the requested operation on the specified timer.
+   * @param id
+   * @param operation (start, stop, reset)
+   */
+  timerIdOperation(id: string, operation: "start" | "stop" | "reset") {
+    return this.getDataFromProPresenter(`/v1/timer/${id}/${operation}`);
+  }
+
+  /**
+   * Requests the current system time.
+   * @returns The current system time.
+   */
+  timerSystemTime() {
+    return this.getDataFromProPresenter(`/v1/timer/system_time`);
+  }
+  /**
+   * Requests the current value of the video countdown timer.
+   * @returns The current value of the video countdown timer.
+   */
+  timerVideoCountdown() {
+    return this.getDataFromProPresenter(`/v1/timer/video_countdown`);
+  }
+
   /*
     
-
-    Theme
-    GET/v1/themes
-    Requests a list of all configured themes and theme slides.
-    GET/v1/theme/{id}
-    Requests the details of the theme and theme slides.
-    GET/v1/theme/{id}/slides/{theme_slide}
-    Requests the details of the specified theme slide within the specified theme.
-    PUT/v1/theme/{id}/slides/{theme_slide}
-    Sets the details of the specified theme slide within the specified theme.
-    GET/v1/theme/{id}/slides/{theme_slide}/thumbnail
-    Requests a thumbnail image of the specified theme slide at the given quality value.
-
-    Timer
-    GET/v1/timers
-    Requests the details for all configured timers.
-    POST/v1/timers
-    Creates a new timer with the specified details.
-    GET/v1/timers/current
-    Requests the current time for all configured timers.
-    GET/v1/timers/{operation}
-    Performs the requested operation for all configured timers (start, stop, reset).
-    GET/v1/timer/{id}
-    Requests the details of the specified timer.
-    PUT/v1/timer/{id}
-    Sets the details of the specified timer.
-    DELETE/v1/timer/{id}
-    Deletes the specified timer.
-    GET/v1/timer/{id}/{operation}
-    Performs the requested operation on the specified timer (start, stop, reset).
-    GET/v1/timer/system_time
-    Requests the current system time.
-    GET/v1/timer/video_countdown
-    Requests the current value of the video countdown timer.
 
     Transport
     GET/v1/transport/{layer}/play
