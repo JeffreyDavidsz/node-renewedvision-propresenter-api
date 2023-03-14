@@ -1663,31 +1663,104 @@ export class ProPresenter {
     return this.getDataFromProPresenter(`/v1/timer/video_countdown`);
   }
 
+  /**
+   * TRANSPORT
+   */
+
+  /**
+   * Plays the content on the specified layer.
+   * @param layer (presentation, announcement, audio)
+   */
+  transportLayerPlay(layer: "presentation" | "announcement" | "audio") {
+    return this.getDataFromProPresenter(`/v1/transport/${layer}/play`);
+  }
+  /**
+   * Pauses the content on the specified layer.
+   * @param layer (presentation, announcement, audio)
+   */
+  transportLayerPause(layer: "presentation" | "announcement" | "audio") {
+    return this.getDataFromProPresenter(`/v1/transport/${layer}/pause`);
+  }
+  /**
+   * Moves backward in the content on the specified layer by the specified number of seconds.
+   * @param layer (presentation, announcement, audio)
+   * @param {number} time in seconds
+   */
+  transportLayerSkipBackwardTime(
+    layer: "presentation" | "announcement" | "audio",
+    time: number
+  ) {
+    return this.getDataFromProPresenter(
+      `/v1/transport/${layer}/skip_backward/${time}`
+    );
+  }
+  /**
+   * Moves forward in the content on the specified layer by the specified number of seconds.
+   * @param layer (presentation, announcement, audio)
+   * @param {number} time in seconds
+   */
+  transportLayerSkipForwardTime(
+    layer: "presentation" | "announcement" | "audio",
+    time: number
+  ) {
+    return this.getDataFromProPresenter(
+      `/v1/transport/${layer}/skip_forward/${time}`
+    );
+  }
+  /**
+   * Moves to the end on a certain layer
+   * @param layer (presentation, announcement, audio)
+   */
+  transportLayerGoToEnd(layer: "presentation" | "announcement" | "audio") {
+    return this.getDataFromProPresenter(`/v1/transport/${layer}/go_to_end`);
+  }
+  /**
+   * Requests the current transport time for the specified layer.
+   * @param layer (presentation, announcement, audio)
+   * @returns The current transport time for the specified layer.
+   */
+  transportLayerTime(layer: "presentation" | "announcement" | "audio") {
+    return this.getDataFromProPresenter(`/v1/transport/${layer}/time`);
+  }
+  /**
+   * Moves to the specified time for the specified layer
+   * @param layer (presentation, announcement, audio)
+   * @param time in seconds?
+   * NOT READY
+   */
+  transportLayerTimeSet(layer: "presentation" | "announcement" | "audio") {
+    return this.getDataFromProPresenter(`/v1/transport/${layer}/time`, {
+      method: "PUT",
+    });
+  }
+  /**
+   * Requests the auto-advance status for the specified layer.
+   * @param layer (presentation, announcement).
+   * @returns The auto-advance status for the specified layer.
+   */
+  transportLayerAutoAdvance(layer: "presentation" | "announcement") {
+    return this.getDataFromProPresenter(`/v1/transport/${layer}/auto_advance`);
+  }
+  /**
+   * Cancels the auto-advance for the specified layer.
+   * @param layer (presentation, announcement).
+   */
+  transportLayerAutoAdvanceDelete(layer: "presentation" | "announcement") {
+    return this.getDataFromProPresenter(`/v1/transport/${layer}/auto_advance`, {
+      method: "DELETE",
+    });
+  }
+  /**
+   * RRequests the details of the currently playing content for the specified layer
+   * @param layer (presentation, announcement).
+   * @returns The details of the currently playing content for the specified layer
+   */
+  transportLayerCurrent(layer: "presentation" | "announcement") {
+    return this.getDataFromProPresenter(`/v1/transport/${layer}/current`);
+  }
   /*
     
-
-    Transport
-    GET/v1/transport/{layer}/play
-    Plays the content on the specified layer (presentation, announcement, audio).
-    GET/v1/transport/{layer}/pause
-    Pauses the content on the specified layer (presentation, announcement, audio).
-    GET/v1/transport/{layer}/skip_backward/{time}
-    Moves backward in the content on the specified layer by the specified number of seconds (presentation, announcement, audio).
-    GET/v1/transport/{layer}/skip_forward/{time}
-    Moves forward in the content on the specified layer by the specified number of seconds (presentation, announcement, audio).
-    GET/v1/transport/{layer}/go_to_end
-    Moves to the end on a certain layer
-    GET/v1/transport/{layer}/time
-    Requests the current transport time for the specified layer (presentation, announcement, audio).
-    PUT/v1/transport/{layer}/time
-    Moves to the specified time for the specified layer (presentation, announcement, audio).
-    GET/v1/transport/{layer}/auto_advance
-    Requests the auto-advance status for the specified layer (presentation, announcement).
-    DELETE/v1/transport/{layer}/auto_advance
-    Cancels the auto-advance for the specified layer (presentation, announcement).
-    GET/v1/transport/{layer}/current
-    Requests the details of the currently playing content for the specified layer (presentation, announcement, audio).
-
+    
     Trigger
     GET/v1/trigger/media/next
     Triggers the next item in the currently active media playlist.
