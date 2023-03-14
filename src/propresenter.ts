@@ -22,7 +22,7 @@ export class ProPresenter {
    * @param userOptions (optional)
    * @returns Promise from fetch
    */
-  getDataFromProPresenter = (path: string, userOptions?: any) => {
+  private getDataFromProPresenter = (path: string, userOptions?: any) => {
     // Define default options
     const defaultOptions = {};
     // Define default headers
