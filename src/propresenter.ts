@@ -1751,35 +1751,70 @@ export class ProPresenter {
     });
   }
   /**
-   * RRequests the details of the currently playing content for the specified layer
+   * Requests the details of the currently playing content for the specified layer
    * @param layer (presentation, announcement).
    * @returns The details of the currently playing content for the specified layer
    */
   transportLayerCurrent(layer: "presentation" | "announcement") {
     return this.getDataFromProPresenter(`/v1/transport/${layer}/current`);
   }
-  /*
-    
-    
-    Trigger
-    GET/v1/trigger/media/next
-    Triggers the next item in the currently active media playlist.
-    GET/v1/trigger/media/previous
-    Triggers the previous item in the currently active media playlist.
-    GET/v1/trigger/audio/next
-    Triggers the next item in the currently active audio playlist.
-    GET/v1/trigger/audio/previous
-    Triggers the previous item in the currently active audio playlist.
-    GET/v1/trigger/next
-    Triggers the next cue or item in the currently active playlist or library.
-    GET/v1/trigger/previous
-    Triggers the previous cue or item in the currently active playlist or library.
 
-    Video Input
-    GET/v1/video_inputs
-    Requests the contents of the video inputs playlist.
-    GET/v1/video_inputs/{id}/trigger
-    Triggers a video input from the video inputs playlist.
+  /**
+   * TRIGGER
+   */
 
-  */
+  /**
+   * Triggers the next item in the currently active media playlist.
+   */
+  triggerMediaNext() {
+    return this.getDataFromProPresenter(`/v1/trigger/media/next`);
+  }
+  /**
+   * Triggers the previous item in the currently active media playlist.
+   */
+  triggerMediaPrevious() {
+    return this.getDataFromProPresenter(`/v1/trigger/media/next`);
+  }
+  /**
+   * Triggers the next item in the currently active media playlist.
+   */
+  triggerAudioNext() {
+    return this.getDataFromProPresenter(`/v1/trigger/audio/next`);
+  }
+  /**
+   * Triggers the previous item in the currently active audio playlist.
+   */
+  triggerAudioPrevious() {
+    return this.getDataFromProPresenter(`/v1/trigger/audio/previous`);
+  }
+  /**
+   * Triggers the next cue or item in the currently active playlist or library.
+   */
+  triggerNext() {
+    return this.getDataFromProPresenter(`/v1/trigger/next`);
+  }
+  /**
+   * Triggers the previous cue or item in the currently active playlist or library.
+   */
+  triggerPrevious() {
+    return this.getDataFromProPresenter(`/v1/trigger/previous`);
+  }
+
+  /**
+   * VIDEO
+   */
+  /**
+   * Requests the contents of the video inputs playlist.
+   * @returns The contents of the video inputs playlist.
+   */
+  videoInputs() {
+    return this.getDataFromProPresenter(`/v1/video_inputs`);
+  }
+  /**
+   * Triggers a video input from the video inputs playlist.
+   * @param id
+   */
+  videoInputsIdTrigger(id: string) {
+    return this.getDataFromProPresenter(`/v1/video_inputs/${id}/trigger`);
+  }
 }
