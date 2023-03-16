@@ -250,7 +250,7 @@ export class ProPresenter {
   /**
    * Triggers the previous item in the active audio playlist.
    */
-  audioPlaylistsActivedPreviousTrigger() {
+  audioPlaylistsActivePreviousTrigger() {
     return this.getDataFromProPresenter(
       `/v1/audio/playlists/active/previous/trigger`
     );

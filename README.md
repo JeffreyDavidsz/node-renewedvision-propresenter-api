@@ -1,5 +1,4 @@
-# UNDER CONSTRUCTION, ONLY FIRST PART OF API IS INCORPORATED
-# POST COMMANDS AREN't INCULDED AT THIS POINT
+# POST/PUT COMMANDS AREN't YET FINISHED AT THIS POINT
 ## RenewedVision ProPresenter API wrapper
 
 Typescript wrapper for Node.js.
@@ -62,7 +61,7 @@ this.ProPresenter.version().then((result) => {
 - [audioPlaylistsActiveIdTrigger](README.md#audioplaylistsactiveidtrigger)
 - [audioPlaylistsActiveNextTrigger](README.md#audioplaylistsactivenexttrigger)
 - [audioPlaylistsActiveTrigger](README.md#audioplaylistsactivetrigger)
-- [audioPlaylistsActivedPreviousTrigger](README.md#audioplaylistsactivedprevioustrigger)
+- [audioPlaylistsActivePreviousTrigger](README.md#audioplaylistsactiveprevioustrigger)
 - [audioPlaylistsByPlaylistIdFocus](README.md#audioplaylistsbyplaylistidfocus)
 - [audioPlaylistsByPlaylistIdNextTrigger](README.md#audioplaylistsbyplaylistidnexttrigger)
 - [audioPlaylistsByPlaylistIdPreviousTrigger](README.md#audioplaylistsbyplaylistidprevioustrigger)
@@ -626,9 +625,9 @@ Triggers the active audio playlist (restarts from the beginning).
 
 ___
 
-### audioPlaylistsActivedPreviousTrigger
+### audioPlaylistsActivePreviousTrigger
 
-▸ **audioPlaylistsActivedPreviousTrigger**(): `Promise`<{ `command`: `string` ; `data`: `any` ; `status`: `number`  }\>
+▸ **audioPlaylistsActivePreviousTrigger**(): `Promise`<{ `command`: `string` ; `data`: `any` ; `status`: `number`  }\>
 
 Triggers the previous item in the active audio playlist.
 
