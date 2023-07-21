@@ -40,6 +40,6 @@
   "engines": {
 		"npm": "please-use-yarn",
 		"yarn": "^1.22",
-		"node": ">=18.12 <19"
+		"node": ">=18.12"
 	}
 }
