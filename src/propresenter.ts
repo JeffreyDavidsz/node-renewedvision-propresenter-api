@@ -47,7 +47,7 @@ export class ProPresenter {
       .then((response) => {
         resultObj.status = response.status;
         const contentType = response.headers.get("content-type");
-        if (contentType && contentType.indexOf("application/json") !== -1) // Check if response from Pro7 contains a JSON body. Some Pro7 API requests (eg most /trigger's) return only a header without any response body
+        if (contentType && contentType.indexOf("application/json") !== -1) // Check if response from Pro7 contains a JSON body. Some Pro7 API GET requests (eg most /trigger's) return only a header without any response body
           return response.json();
         else
           return JSON.stringify(null);  // Convention: For responses from Pro7 that do not have a body, return "null"
@@ -124,7 +124,7 @@ export class ProPresenter {
    * Requests the current state of the active announcement timeline.
    * @returns The current state of the active announcement timeline.
    */
-  announcementGetActiveTimelineOperation() {
+  announcementGetActiveTimelineOperation() { // TODO: fix this name
     return this.sendRequestToProPresenter(`/v1/announcement/active/timeline`);
   }
   /**
