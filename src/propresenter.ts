@@ -1,18 +1,20 @@
-export type JSONValue =
+export type JSONValue = // TODO: Perhaps JSONResponseAndPath is a better name?
   | {
       data: any;
       status: number;
-      command: string;
+      command: string; // TODO: Perhaps path is a better name?
     }
   | Promise<JSONValue>;
 
 export class ProPresenter {
-  ip: string;
+  ip: string; // TODO: Perhaps host is a better name? (As either a hostname or IP string would work)
   port: number;
+  timeout: number; // User-defined timeout for all network fetch operations. If not explicitly set, this module will default to 2 seconds. This default is much shorter than the Node default fetch timeout of 30 seconds, making it more suitable for remote-control situations.
 
-  constructor(ip: string, port: number) {
+  constructor(ip: string, port: number, timeout: number = 2000) {
     this.ip = ip;
     this.port = port;
+    this.timeout = timeout;
   }
 
   //
@@ -23,6 +25,9 @@ export class ProPresenter {
    * @returns Promise from fetch
    */
   private sendRequestToProPresenter = (path: string, userOptions?: any) => {
+    // AbortController - used for user-defined timeout
+    const abortController = new AbortController();
+    
     // Define default options
     const defaultOptions = {};
     // Define default headers
@@ -33,6 +38,7 @@ export class ProPresenter {
       // Merge options
       ...defaultOptions,
       ...userOptions,
+      signal: abortController.signal, // Used to abort fetch, in case of no reponse within user-defined timeout
       // Merge headers
       headers: {
         ...defaultHeaders,
@@ -43,11 +49,16 @@ export class ProPresenter {
     // Build Url
     const url = `http://${this.ip}:${this.port}${path}`;
     const resultObj: JSONValue = { data: null, status: null, command: path };
+
+    // Prepare to abort fetch if not completed within user-defined timeout
+    const timeoutId = setTimeout(() => abortController.abort(), this.timeout);
+
     return fetch(url, options)
       .then((response) => {
+        clearTimeout(timeoutId); // Response received - clear pending abort for user-defined timeout
         resultObj.status = response.status;
         const contentType = response.headers.get("content-type");
-        if (contentType && contentType.indexOf("application/json") !== -1) // Check if response from Pro7 contains a JSON body. Some Pro7 API requests (eg most /trigger's) return only a header without any response body
+        if (contentType && contentType.indexOf("application/json") !== -1) // Check if response from Pro7 contains a JSON body. Some Pro7 API GET requests (eg most /trigger's) return only a header without any response body
           return response.json();
         else
           return JSON.stringify(null);  // Convention: For responses from Pro7 that do not have a body, return "null"
@@ -124,7 +135,7 @@ export class ProPresenter {
    * Requests the current state of the active announcement timeline.
    * @returns The current state of the active announcement timeline.
    */
-  announcementGetActiveTimelineOperation() {
+  announcementGetActiveTimelineOperation() { // TODO: fix this name
     return this.sendRequestToProPresenter(`/v1/announcement/active/timeline`);
   }
   /**
@@ -1404,7 +1415,7 @@ export class ProPresenter {
    */
   stageLayoutMapSet() {
     return this.sendRequestToProPresenter(`/v1/stage/layout_map`, {
-      methid: "PUT",
+      method: "PUT",
     });
   }
   /**
