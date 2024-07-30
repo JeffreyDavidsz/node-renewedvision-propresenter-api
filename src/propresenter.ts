@@ -1404,7 +1404,7 @@ export class ProPresenter {
    */
   stageLayoutMapSet() {
     return this.sendRequestToProPresenter(`/v1/stage/layout_map`, {
-      methid: "PUT",
+      method: "PUT",
     });
   }
   /**
