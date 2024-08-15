@@ -10,14 +10,15 @@ export class ProPresenter {
   ip: string; // TODO: Perhaps host is a better name? (As either a hostname or IP string would work)
   port: number;
   timeout: number; // User-defined timeout for all network fetch operations. If not explicitly set, this module will default to 2 seconds. This default is much shorter than the Node default fetch timeout of 30 seconds, making it more suitable for remote-control situations.
-
+  statusAbortController: AbortController; // TODO: make this private? Used to abort fetch of chunked status updates
+  
   constructor(ip: string, port: number, timeout: number = 2000) {
     this.ip = ip;
     this.port = port;
     this.timeout = timeout;
+    this.statusAbortController = new AbortController();  // TODO: make this null. Class level AbortController. Status connection is a single connection for this module. When you want to change endpoints/callbacks, the connection is dropped and replaced with a new one.
   }
 
-  //
   /**
    * API wrapper function, use fetch to send/retrieve the data from ProPresenter
    * @param path
@@ -25,7 +26,7 @@ export class ProPresenter {
    * @returns Promise from fetch
    */
   private sendRequestToProPresenter = (path: string, userOptions?: any) => {
-    // AbortController - used for user-defined timeout
+    // AbortController - used for user-defined request timeout. A new one is made per request sent
     const abortController = new AbortController();
     
     // Define default options
@@ -68,6 +69,153 @@ export class ProPresenter {
         return resultObj;
       });
   };
+
+
+  /**
+   * Register etc will POST to /v1/status/updates and handle the processing of streaming responses by calling callbacks with returned data
+   * @param statusEndPointsAndCallbacks Dictionary of endpoints and callbacks
+   * @param timeout (optional)
+   */
+  registerCallbacksForStatusUpdates(statusEndPointsAndCallbacks, timeout = 2000) {
+    const self = this;
+    function fetchStatusWithTimeout(options): Promise<Response> {
+      const { timeout = 2000 } = options;
+  
+      return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          reject(new Error("Request timed out"));
+        }, timeout);
+        
+        const statusEndPoints = Object.keys(statusEndPointsAndCallbacks);
+        const statusUrl = `http://${self.ip}:${self.port}/v1/status/updates`;
+        console.log("About to fetch: " + statusUrl + "\n" + JSON.stringify(statusEndPoints));
+  
+        return fetch(statusUrl, {
+          method: "POST",
+          body: JSON.stringify(statusEndPoints),
+          headers: { "Content-Type": "application/json" },
+          signal: self.statusAbortController.signal,
+        }).then(
+          (response) => {
+            clearTimeout(timer);
+            resolve(response);
+          },
+          (err) => {
+            clearTimeout(timer);
+            reject(err);
+          }
+        );
+      });
+    }
+  
+    function readStream(reader, decoder, buffer) {
+      return new Promise<void>((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          reject(new Error("Read stream timed out"));
+        }, timeout);
+  
+        function processChunk({ done, value }) {
+          clearTimeout(timeoutId);
+  
+          if (done) {
+            // Process any remaining buffer content if it contains a complete JSON object
+            console.log('Done reading stream');
+            if (buffer.trim()) {
+              try {
+                const jsonStatusUpdateObject = JSON.parse(buffer); 
+                //onJSONUpdate(json);
+                const streamingCallbacks = Object.values(statusEndPointsAndCallbacks);
+                const callback:(any) = streamingCallbacks[jsonStatusUpdateObject.url];
+                if (callback) {
+                  callback(jsonStatusUpdateObject);
+                }
+              } catch (e) {
+                console.error("Failed to parse JSON:", e);
+              }
+            }
+            return resolve();
+          }
+  
+          // Decode the chunk into a string
+          buffer += decoder.decode(value, { stream: true });
+  
+          // Split the buffer by the delimiter '\r\n\r\n' to get indiviual updates in an array
+          let statusUpdates = buffer.split("\r\n\r\n");
+  
+          // The last item in the newly split array is either an incomplete JSON or an empty string, so we keep it in the buffer
+          buffer = statusUpdates.pop();
+  
+          // The remaining status updates in the newly split array are complete JSON status updates, so let's process each one
+          statusUpdates.forEach((statusUpdateJSON) => {
+            if (statusUpdateJSON.trim()) {
+              // Ensure it's not an empty string
+              try {
+                const jsonStatusUpdateObject = JSON.parse(statusUpdateJSON);
+                //console.log("Got Update for URL: " + jsonStatusUpdateObject.url);
+                // TODO: remove: this.statusAbortController = Object.values(statusEndPointsAndCallbacks);
+                const callback = statusEndPointsAndCallbacks[jsonStatusUpdateObject.url];
+                if (callback) {
+                  callback(jsonStatusUpdateObject);
+                }
+              } catch (e) {
+                console.error("Failed to parse JSON:", e);
+              }
+            }
+          });
+  
+          return reader.read().then(processChunk).catch(reject);
+        }
+  
+        reader.read().then(processChunk).catch(reject);
+      });
+    }
+  
+    function connectAndStartProcessing() {
+      // Check for and abort any in-progress status connection (only allow one at a time, cancel any in-progress)
+      if (self.statusAbortController) {
+        self.statusAbortController.abort();
+      }
+
+      self.statusAbortController = new AbortController(); // Assign a new AbortController to class level statusAbortController
+      fetchStatusWithTimeout({ timeout })
+        .then((response) => {
+          if (!response.ok) {
+            // TODO: status disconnected
+            // TODO: Decide between throwing error, or some log callback? (prob throw)
+            // Details of error may be in body (eg invalid status urls)
+            return response.text().then((text) => {
+              throw new Error(
+                `HTTP Error! Status: ${response.status} Body: ${text}`
+              );
+            });
+          }
+          // TODO: status connected
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+          console.log("about to read stream");
+          return readStream(reader, decoder, buffer);
+        })
+        .then(() => {
+          // TODO: status disconnected
+          console.log( "Fetch completed, but I can haz another try: Retrying connection...");
+          setTimeout(connectAndStartProcessing, 2000); // Retry after time TODO: configurable retry time?
+        })
+        .catch((error) => {
+          // TODO: status disconnected
+          console.error("Error processing JSON stream:", error);
+          console.log("Retrying connection...");
+          setTimeout(connectAndStartProcessing, 2000); // Retry after time TODO: configurable retry time?
+        });
+  
+        // Failure Test
+        //setTimeout(() => {abortController.abort()}, 10000);
+    }
+
+    connectAndStartProcessing();
+  }
+
+
 
   /**
    * ANNOUNCEMENT
