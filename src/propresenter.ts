@@ -6,17 +6,26 @@ export type JSONValue = // TODO: Perhaps JSONResponseAndPath is a better name?
     }
   | Promise<JSONValue>;
 
+export type StatusJSON = 
+{
+  url: string;
+  data: any;
+}
+
+export type StatusCallback  = (StatusJSON) => void;
+
 export class ProPresenter {
   ip: string; // TODO: Perhaps host is a better name? (As either a hostname or IP string would work)
   port: number;
   timeout: number; // User-defined timeout for all network fetch operations. If not explicitly set, this module will default to 2 seconds. This default is much shorter than the Node default fetch timeout of 30 seconds, making it more suitable for remote-control situations.
-  statusAbortController: AbortController; // TODO: make this private? Used to abort fetch of chunked status updates
+  #statusAbortController: AbortController; // Used to abort fetch of chunked status updates.
+
   
   constructor(ip: string, port: number, timeout: number = 2000) {
     this.ip = ip;
     this.port = port;
     this.timeout = timeout;
-    this.statusAbortController = new AbortController();  // TODO: make this null. Class level AbortController. Status connection is a single connection for this module. When you want to change endpoints/callbacks, the connection is dropped and replaced with a new one.
+    this.#statusAbortController = null;  // Class level AbortController for the single, persistant Status connection that gets live feedback (through callbacks) for all registered endpoints. When you want to change endpoints/callbacks, any current status connection is dropped and replaced with a new one.
   }
 
   /**
@@ -73,11 +82,14 @@ export class ProPresenter {
 
   /**
    * Register etc will POST to /v1/status/updates and handle the processing of streaming responses by calling callbacks with returned data
-   * @param statusEndPointsAndCallbacks Dictionary of endpoints and callbacks
-   * @param timeout (optional)
+   * @param statusEndPointsAndCallbacks Dictionary of endpoints {[key: string]: StatusCallback} where the key is the get URL and the value is callback function
+   * @param timeout Optional network timeout for status connection. Defaults to 2000msec
    */
-  registerCallbacksForStatusUpdates(statusEndPointsAndCallbacks, timeout = 2000) {
+  registerCallbacksForStatusUpdates(statusEndPointsAndCallbacks: {[key: string]: StatusCallback}, timeout = 2000) {
     const self = this;
+
+    // The following three private functions are used to create and maintain the persistant Status connection.
+    // The fetchStatusWithTimeout function implements a simple fetch with timeout (and ability to aobort the connection)
     function fetchStatusWithTimeout(options): Promise<Response> {
       const { timeout = 2000 } = options;
   
@@ -88,13 +100,13 @@ export class ProPresenter {
         
         const statusEndPoints = Object.keys(statusEndPointsAndCallbacks);
         const statusUrl = `http://${self.ip}:${self.port}/v1/status/updates`;
-        console.log("About to fetch: " + statusUrl + "\n" + JSON.stringify(statusEndPoints));
+        console.log("ProPresenter API module: About to start persistant status connection to " + statusUrl + ", for endpoints & callbacks: " + '[' + Object.keys(statusEndPointsAndCallbacks).map(key => `'${key}': ${statusEndPointsAndCallbacks[key].name}(statusJSONObject)`).join(', ') + ']');
   
         return fetch(statusUrl, {
           method: "POST",
           body: JSON.stringify(statusEndPoints),
           headers: { "Content-Type": "application/json" },
-          signal: self.statusAbortController.signal,
+          signal: self.#statusAbortController.signal,
         }).then(
           (response) => {
             clearTimeout(timer);
@@ -108,6 +120,7 @@ export class ProPresenter {
       });
     }
   
+    // The readStream function uses recursion to process chunked responses from ProPresenter.
     function readStream(reader, decoder, buffer) {
       return new Promise<void>((resolve, reject) => {
         const timeoutId = setTimeout(() => {
@@ -122,12 +135,12 @@ export class ProPresenter {
             console.log('Done reading stream');
             if (buffer.trim()) {
               try {
-                const jsonStatusUpdateObject = JSON.parse(buffer); 
+                const statusJSONObject: StatusJSON = JSON.parse(buffer); 
                 //onJSONUpdate(json);
                 const streamingCallbacks = Object.values(statusEndPointsAndCallbacks);
-                const callback:(any) = streamingCallbacks[jsonStatusUpdateObject.url];
+                const callback:(StatusCallback) = streamingCallbacks[statusJSONObject.url];
                 if (callback) {
-                  callback(jsonStatusUpdateObject);
+                  callback(statusJSONObject);
                 }
               } catch (e) {
                 console.error("Failed to parse JSON:", e);
@@ -170,18 +183,19 @@ export class ProPresenter {
       });
     }
   
+    // connectAndStartProcessing initiates the persistant status connection (and ensures there is only a single persistant Status connection)
     function connectAndStartProcessing() {
       // Check for and abort any in-progress status connection (only allow one at a time, cancel any in-progress)
-      if (self.statusAbortController) {
-        self.statusAbortController.abort();
+      if (self.#statusAbortController) {
+        self.#statusAbortController.abort();
       }
 
-      self.statusAbortController = new AbortController(); // Assign a new AbortController to class level statusAbortController
+      self.#statusAbortController = new AbortController(); // Assign a new AbortController to class level statusAbortController
       fetchStatusWithTimeout({ timeout })
         .then((response) => {
           if (!response.ok) {
-            // TODO: status disconnected
-            // TODO: Decide between throwing error, or some log callback? (prob throw)
+            // TODO: (emit?) status disconnected
+            // TODO: Decide between throwing error, or (emit?)
             // Details of error may be in body (eg invalid status urls)
             return response.text().then((text) => {
               throw new Error(
@@ -189,33 +203,27 @@ export class ProPresenter {
               );
             });
           }
-          // TODO: status connected
+          // TODO: (emit?) status connected
           const reader = response.body.getReader();
           const decoder = new TextDecoder();
           let buffer = "";
-          console.log("about to read stream");
           return readStream(reader, decoder, buffer);
         })
         .then(() => {
-          // TODO: status disconnected
+          // TODO: (emit?) status disconnected
           console.log( "Fetch completed, but I can haz another try: Retrying connection...");
           setTimeout(connectAndStartProcessing, 2000); // Retry after time TODO: configurable retry time?
         })
         .catch((error) => {
-          // TODO: status disconnected
+          // TODO: (emit?) status disconnected
           console.error("Error processing JSON stream:", error);
           console.log("Retrying connection...");
           setTimeout(connectAndStartProcessing, 2000); // Retry after time TODO: configurable retry time?
         });
-  
-        // Failure Test
-        //setTimeout(() => {abortController.abort()}, 10000);
     }
 
     connectAndStartProcessing();
   }
-
-
 
   /**
    * ANNOUNCEMENT
