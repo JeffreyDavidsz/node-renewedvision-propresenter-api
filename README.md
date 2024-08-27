@@ -28,6 +28,28 @@ this.ProPresenter.version().then((result) => {
 			"command":"/version"}
 	*/
 })
+
+// Example of registering multiple callbacks for status feedback from multiple streaming endpoints. Once registered, the module will maintain a single persistant status connection and call your callbacks each time a specific status endpoint sends an update.
+// You need to provide a dictionary of 'GET' status endpoints and callback function pairs.
+// You can register as many endpoints/callbacks pairs as you like. Supported endpoints are those that support chunked requests.
+// The last (optional) parameter is network timeout (use this to timeout faster than the default 30s)
+// In this example, we register TWO status 'GET' endpoints that support chunked responses - one for when the active slide changes and one for when any of the timers change.
+// The callbacks will be passed JSON response data from the endpoints.
+this.ProPresenter.registerCallbacksForStatusUpdates(
+	{ 'status/slide': this.statusSlideUpdate, 'timers/current': this.timersCurrentUpdate },
+	2000
+)
+
+// If you define your status callback functions using arrow notation this will create property functions that capture the parent 'this' instance - which can be useful if you want to refer to 'this' in the callback functions themselves
+statusSlideUpdate = (statusJSONObject: StatusJSON) => {
+	// StatusJSON is the JSON sent when a status/slide sends an update
+	this.doSomethingWithSlideStatus(statusJSONObject)
+}
+
+timersCurrentUpdate = (statusJSONObject: StatusJSON) => {
+	// StatusJSON is the JSON sent when a timers/current sends an update
+	this.doSomethingWithTimersStatus(statusJSONObject)
+}
 ```
 
 >> 'command' result will return the requested action/command. This way you can see where the data is returning from.
