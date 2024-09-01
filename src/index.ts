@@ -1,1 +1,1 @@
-export { ProPresenter } from './propresenter'
+export { ProPresenter, StatusJSON, ProPresenterLayerName, ProPresenterCaptureOperation, ProPresenterCaptureType, ProPresenterTimelineOperation, ProPresenterTimerOperation, ProPresenterLayerWithTransportControl, ProPresenterLayerWithTransportControlAndAutoAdvance } from './propresenter'
