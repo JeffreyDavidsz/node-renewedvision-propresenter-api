@@ -14,13 +14,21 @@ export type StatusJSON =
 
 export type StatusCallback  = (StatusJSON) => void;
 
+export type ProPresenterLayerName = "audio" | "props" | "messages" | "announcements" | "slide" | "media" | "video_input"
+export type ProPresenterCaptureOperation = "start" | "stop"
+export type ProPresenterCaptureType = "disk" | "rtmp" | "resi"
+export type ProPresenterTimelineOperation =  "play" | "pause" | "rewind"
+export type ProPresenterTimerOperation = "start" | "stop" | "reset"
+export type ProPresenterLayerWithTransportControl = "presentation" | "announcement" | "audio"
+export type ProPresenterLayerWithTransportControlAndAutoAdvance = "presentation" | "announcement"
+
+
 export class ProPresenter {
   ip: string; // TODO: Perhaps host is a better name? (As either a hostname or IP string would work)
   port: number;
   timeout: number; // User-defined timeout for all network fetch operations. If not explicitly set, this module will default to 2 seconds. This default is much shorter than the Node default fetch timeout of 30 seconds, making it more suitable for remote-control situations.
   #statusAbortController: AbortController; // Used to abort fetch of chunked status updates.
 
-  
   constructor(ip: string, port: number, timeout: number = 2000) {
     this.ip = ip;
     this.port = port;
@@ -211,7 +219,7 @@ export class ProPresenter {
         })
         .then(() => {
           // TODO: (emit?) status disconnected
-          console.log( "Fetch completed, but I can haz another try: Retrying connection...");
+          console.log( "Chunked status fetch completed. Retrying connection...");
           setTimeout(connectAndStartProcessing, 2000); // Retry after time TODO: configurable retry time?
         })
         .catch((error) => {
@@ -299,161 +307,147 @@ export class ProPresenter {
    */
 
   /**
-   * Requests a list with all the configured audio playlists.
-   * @returns a list with all the configured audio playlists.
+   * Requests the currently active audio playlist
+   * @returns The currently active audio playlist
    */
-  audioGetPlaylists() {
-    return this.sendRequestToProPresenter(`/v1/audio/playlists`);
+  audioGetPlaylistActive() {
+    return this.sendRequestToProPresenter(`/v1/audio/playlist/active`);
+  }
+  /**
+   * Focuses the active audio playlist.
+   */
+  audioPlaylistActiveFocus() {
+    return this.sendRequestToProPresenter(`/v1/audio/playlist/active/focus`);
+  }
+  /**
+   * Triggers the next item in the active audio playlist.
+   */
+  audioPlaylistActiveNextTrigger() {
+    return this.sendRequestToProPresenter(
+      `/v1/audio/playlist/active/next/trigger`
+    );
+  }
+  /**
+   * Triggers the previous item in the active audio playlist.
+   */
+  audioPlaylistActivePreviousTrigger() {
+    return this.sendRequestToProPresenter(
+      `/v1/audio/playlist/active/previous/trigger`
+    );
+  }
+  /**
+   * Triggers the active audio playlist (restarts from the beginning).
+   */
+  audioPlaylistActiveTrigger() {
+    return this.sendRequestToProPresenter(`/v1/audio/playlist/active/trigger`);
+  }
+  /**
+   * Triggers the specified item in the active audio playlist.
+   * @params {string} id
+   */
+  audioPlaylistActiveIdTrigger(id) {
+    return this.sendRequestToProPresenter(`/v1/audio/playlist/active/${id}/trigger`);
+  }
+  /**
+   * Requests the currently focused audio playlist
+   * @returns The currently focused audio playlist
+   */
+  audioGetPlaylistFocused() {
+    return this.sendRequestToProPresenter(`/v1/audio/playlist/focused`);
+  }
+  /**
+   * Triggers the next item in the focused audio playlist.
+   */
+  audioPlaylistFocusedNextTrigger() {
+    return this.sendRequestToProPresenter(`/v1/audio/playlist/focused/next/trigger`);
+  }
+  /**
+   * Triggers the previous item in the focused audio playlist.
+   */
+  audioPlaylistFocusedPreviousTrigger() {
+    return this.sendRequestToProPresenter(`/v1/audio/playlist/focused/previous/trigger`);
+  }
+  /**
+   * Triggers the focused audio playlist.
+   */
+  audioPlaylistFocusedTrigger() {
+    return this.sendRequestToProPresenter(`/v1/audio/playlist/focused/trigger`);
+  }
+  /**
+   * Triggers the specified item in the focused audio playlist.
+   * @params {string} id
+   */
+  audioPlaylistFocusedIdTrigger(id) {
+    return this.sendRequestToProPresenter(`/v1/audio/playlist/focused/${id}/trigger`);
+  }
+  /**
+   * Focuses the next audio playlist.
+   */
+  audioPlaylistNextFocus() {
+    return this.sendRequestToProPresenter(`/v1/audio/playlist/next/focus`);
+  }
+  /**
+   * Focuses the previous audio playlist.
+   */
+  audioPlaylistPreviousFocus() {
+    return this.sendRequestToProPresenter(`/v1/audio/playlist/previous/focus`);
   }
   /**
    * Requests a list of all the audio items in the specified audio playlist.
    * @param {string} playlist_id
    * @returns a list of all the audio items in the specified audio playlist.
    */
-  audioGetPlaylistsByPlaylistId(playlist_id) {
-    return this.sendRequestToProPresenter(`/v1/audio/playlists/${playlist_id}`);
-  }
-  /**
-   * Requests a chunked data update every time the specified audio playlist changes.
-   * @param {string} playlist_id
-   * @returns a chunked data update every time the specified audio playlist changes.
-   */
-  audioGetPlaylistsByPlaylistIdUpdates(playlist_id) {
-    return this.sendRequestToProPresenter(
-      `/v1/audio/playlists/${playlist_id}/updates`
-    );
-  }
-  /**
-   * Requests the currently focused audio playlist
-   * @returns The currently focused audio playlist
-   */
-  audioGetPlaylistsFocused() {
-    return this.sendRequestToProPresenter(`/v1/audio/playlists/focused`);
-  }
-  /**
-   * Requests the currently active audio playlist
-   * @returns The currently active audio playlist
-   */
-  audioGetPlaylistsActive() {
-    return this.sendRequestToProPresenter(`/v1/audio/playlists/active`);
-  }
-  /**
-   * Focuses the next audio playlist.
-   */
-  audioPlaylistsNextFocus() {
-    return this.sendRequestToProPresenter(`/v1/audio/playlists/next/focus`);
-  }
-  /**
-   * Focuses the previous audio playlist.
-   */
-  audioPlaylistsPreviousFocus() {
-    return this.sendRequestToProPresenter(`/v1/audio/playlists/previous/focus`);
-  }
-  /**
-   * Focuses the active audio playlist.
-   */
-  audioPlaylistsActiveFocus() {
-    return this.sendRequestToProPresenter(`/v1/audio/playlists/active/focus`);
+  audioGetPlaylistByPlaylistId(playlist_id) {
+    return this.sendRequestToProPresenter(`/v1/audio/playlist/${playlist_id}`);
   }
   /**
    * Focuses the specified audio playlist.
    * @param {string} playlist_id
    */
-  audioPlaylistsByPlaylistIdFocus(playlist_id) {
-    return this.sendRequestToProPresenter(
-      `/v1/audio/playlists/${playlist_id}/focus`
-    );
-  }
-  /**
-   * Triggers the focused audio playlist.
-   */
-  audioPlaylistsFocusedTrigger() {
-    return this.sendRequestToProPresenter(`/v1/audio/playlists/focused/trigger`);
-  }
-  /**
-   * Triggers the active audio playlist (restarts from the beginning).
-   */
-  audioPlaylistsActiveTrigger() {
-    return this.sendRequestToProPresenter(`/v1/audio/playlists/active/trigger`);
-  }
-  /**
-   * Triggers the specified audio playlist.
-   * @param {string} playlist_id
-   */
-  audioPlaylistsByPlaylistIdTrigger(playlist_id) {
-    return this.sendRequestToProPresenter(
-      `/v1/audio/playlists/${playlist_id}/trigger`
-    );
-  }
-  /**
-   * Triggers the next item in the focused audio playlist.
-   */
-  audioPlaylistsFocusedNextTrigger() {
-    return this.sendRequestToProPresenter(
-      `/v1/audio/playlists/focused/next/trigger`
-    );
-  }
-  /**
-   * Triggers the previous item in the focused audio playlist.
-   */
-  audioPlaylistsFocusedPreviousTrigger() {
-    return this.sendRequestToProPresenter(
-      `/v1/audio/playlists/focused/previous/trigger`
-    );
-  }
-  /**
-   * Triggers the specified item in the focused audio playlist.
-   * @params {string} id
-   */
-  audioPlaylistsFocusedIdTrigger(id) {
-    return this.sendRequestToProPresenter(
-      `/v1/audio/playlists/focused/${id}/trigger`
-    );
-  }
-  /**
-   * Triggers the next item in the active audio playlist.
-   */
-  audioPlaylistsActiveNextTrigger() {
-    return this.sendRequestToProPresenter(
-      `/v1/audio/playlists/active/next/trigger`
-    );
-  }
-  /**
-   * Triggers the previous item in the active audio playlist.
-   */
-  audioPlaylistsActivePreviousTrigger() {
-    return this.sendRequestToProPresenter(
-      `/v1/audio/playlists/active/previous/trigger`
-    );
-  }
-  /**
-   * Triggers the specified item in the active audio playlist.
-   * @params {string} id
-   */
-  audioPlaylistsActiveIdTrigger(id) {
-    return this.sendRequestToProPresenter(
-      `/v1/audio/playlists/active/${id}/trigger`
-    );
+  audioFocusPlaylistByPlaylistId(playlist_id) {
+    return this.sendRequestToProPresenter(`/v1/audio/playlist/${playlist_id}/focus`);
   }
   /**
    * Triggers the next item in the specified audio playlist.
    * @param {string} playlist_id
    */
-  audioPlaylistsByPlaylistIdNextTrigger(playlist_id) {
+  audioPlaylistByPlaylistIdNextTrigger(playlist_id) {
     return this.sendRequestToProPresenter(
-      `/v1/audio/playlists/${playlist_id}/next/trigger`
+      `/v1/audio/playlist/${playlist_id}/next/trigger`
     );
   }
   /**
    * Triggers the previous item in the specified audio playlist.
    * @param {string} playlist_id
    */
-  audioPlaylistsByPlaylistIdPreviousTrigger(playlist_id) {
+  audioPlaylistByPlaylistIdPreviousTrigger(playlist_id) {
     return this.sendRequestToProPresenter(
-      `/v1/audio/playlists/${playlist_id}/previous/trigger`
+      `/v1/audio/playlist/${playlist_id}/previous/trigger`
     );
   }
-
+  /**
+   * Triggers the specified audio playlist.
+   * @param {string} playlist_id
+   */
+  audioPlaylistByPlaylistIdTrigger(playlist_id) {
+    return this.sendRequestToProPresenter(`/v1/audio/playlist/${playlist_id}/trigger`);
+  }
+  /**
+   * Requests a chunked data update every time the specified audio playlist changes.
+   * @param {string} playlist_id
+   * @returns a chunked data update every time the specified audio playlist changes.
+   * TODO: returns nothing unless chunked parameter is set to true - this seem redundant as you can register a status update callback for /audio/playlist/{playlist_id}
+   */
+  audioGetPlaylistsByPlaylistIdUpdates(playlist_id) {
+    return this.sendRequestToProPresenter(`/v1/audio/playlists/${playlist_id}/updates`);
+  }
+  /**
+   * Requests a list with all the configured audio playlists.
+   * @returns a list with all the configured audio playlists.
+   */
+  audioGetPlaylists() {
+    return this.sendRequestToProPresenter(`/v1/audio/playlists`);
+  }
   /**
    * CAPTURE
    */
@@ -467,9 +461,9 @@ export class ProPresenter {
   }
   /**
    * Performs the requested capture operation (start, stop).
-   * @param operation (start, stop)
+   * @param {ProPresenterCaptureOperation} operation
    */
-  captureOperation(operation: "start" | "stop") {
+  captureOperation(operation: ProPresenterCaptureOperation ) {
     return this.sendRequestToProPresenter(`/v1/capture/${operation}`);
   }
   /**
@@ -481,10 +475,10 @@ export class ProPresenter {
   }
   /**
    * Requests a list of all available capture modes for the capture type (disk, rtmp, resi).
-   * @param type (disk, rtmp, resi)
+   * @param {ProPresenterCaptureType} type
    * @returns A list of all available capture modes for the capture type (disk, rtmp, resi).
    */
-  captureEncodingsType(type: "disk" | "rtmp" | "resi") {
+  captureEncodingsType(type: ProPresenterCaptureType ) {
     return this.sendRequestToProPresenter(`/v1/capture/encodings/${type}`);
   }
   /**
@@ -492,18 +486,9 @@ export class ProPresenter {
    */
   /**
    * Clears the specified layer (audio, props, messages, announcements, slide, media, video_input).
-   * @param {string} layer (audio, props, messages, announcements, slide, media, video_input)
+   * @param {ProPresenterLayerName} layer
    */
-  clearLayer(
-    layer:
-      | "audio"
-      | "props"
-      | "messages"
-      | "announcements"
-      | "slide"
-      | "media"
-      | "video_input"
-  ) {
+  clearLayer(layer: ProPresenterLayerName) {
     return this.sendRequestToProPresenter(`/v1/clear/layer/${layer}`);
   }
   /**
@@ -1295,18 +1280,18 @@ export class ProPresenter {
   }
   /**
    * Performs the requested timeline operation for the currently active presentation (play, pause, rewind).
-   * @param operation (play, pause, rewind)
+   * @param {ProPresenterTimelineOperation} operation
    */
-  presentationActiveTimelineOperation(operation: "play" | "pause" | "rewind") {
+  presentationActiveTimelineOperation(operation: ProPresenterTimelineOperation) {
     return this.sendRequestToProPresenter(
       `/v1/presentation/active/timeline/${operation}`
     );
   }
   /**
    * Performs the requested timeline operation for the currently focused presentation (play, pause, rewind).
-   * @param operation (play, pause, rewind)
+   * @param {ProPresenterTimelineOperation} operation
    */
-  presentationFocusedTimelineOperation(operation: "play" | "pause" | "rewind") {
+  presentationFocusedTimelineOperation(operation: ProPresenterTimelineOperation) {
     return this.sendRequestToProPresenter(
       `/v1/presentation/focused/timeline/${operation}`
     );
@@ -1314,11 +1299,11 @@ export class ProPresenter {
   /**
    * Performs the requested timeline operation for the specified presentation (play, pause, rewind).
    * @param {string} uuid
-   * @param {string} operation (play, pause, rewind)
+   * @param {ProPresenterTimelineOperation} operation
    */
   presentationUUIDFocusedTimelineOperation(
     uuid: string,
-    operation: "play" | "pause" | "rewind"
+    operation: ProPresenterTimelineOperation
   ) {
     return this.sendRequestToProPresenter(
       `/v1/presentation/${uuid}/timeline/${operation}`
@@ -1780,9 +1765,9 @@ export class ProPresenter {
   }
   /**
    * Performs the requested operation for all configured timers.
-   * @param operation (start, stop, reset)
+   * @param {ProPresenterTimerOperation} operation
    */
-  timersOperation(operation: "start" | "stop" | "reset") {
+  timersOperation(operation: ProPresenterTimerOperation) {
     return this.sendRequestToProPresenter(`/v1/timers/${operation}`);
   }
   /**
@@ -1813,9 +1798,9 @@ export class ProPresenter {
   /**
    * Performs the requested operation on the specified timer.
    * @param id
-   * @param operation (start, stop, reset)
+   * @param {ProPresenterTimerOperation} operation
    */
-  timerIdOperation(id: string, operation: "start" | "stop" | "reset") {
+  timerIdOperation(id: string, operation: ProPresenterTimerOperation) {
     return this.sendRequestToProPresenter(`/v1/timer/${id}/${operation}`);
   }
 
@@ -1840,25 +1825,25 @@ export class ProPresenter {
 
   /**
    * Plays the content on the specified layer.
-   * @param layer (presentation, announcement, audio)
+   * @param {ProPresenterLayerWithTransportControl} layer
    */
-  transportLayerPlay(layer: "presentation" | "announcement" | "audio") {
+  transportLayerPlay(layer: ProPresenterLayerWithTransportControl) {
     return this.sendRequestToProPresenter(`/v1/transport/${layer}/play`);
   }
   /**
    * Pauses the content on the specified layer.
-   * @param layer (presentation, announcement, audio)
+   * @param {ProPresenterLayerWithTransportControl} layer
    */
-  transportLayerPause(layer: "presentation" | "announcement" | "audio") {
+  transportLayerPause(layer: ProPresenterLayerWithTransportControl) {
     return this.sendRequestToProPresenter(`/v1/transport/${layer}/pause`);
   }
   /**
    * Moves backward in the content on the specified layer by the specified number of seconds.
-   * @param layer (presentation, announcement, audio)
+   * @param {ProPresenterLayerWithTransportControl} layer
    * @param {number} time in seconds
    */
   transportLayerSkipBackwardTime(
-    layer: "presentation" | "announcement" | "audio",
+    layer: ProPresenterLayerWithTransportControl,
     time: number
   ) {
     return this.sendRequestToProPresenter(
@@ -1867,11 +1852,11 @@ export class ProPresenter {
   }
   /**
    * Moves forward in the content on the specified layer by the specified number of seconds.
-   * @param layer (presentation, announcement, audio)
+   * @param {ProPresenterLayerWithTransportControl} layer
    * @param {number} time in seconds
    */
   transportLayerSkipForwardTime(
-    layer: "presentation" | "announcement" | "audio",
+    layer: ProPresenterLayerWithTransportControl,
     time: number
   ) {
     return this.sendRequestToProPresenter(
@@ -1880,53 +1865,53 @@ export class ProPresenter {
   }
   /**
    * Moves to the end on a certain layer
-   * @param layer (presentation, announcement, audio)
+   * @param {ProPresenterLayerWithTransportControl} layer
    */
-  transportLayerGoToEnd(layer: "presentation" | "announcement" | "audio") {
+  transportLayerGoToEnd(layer: ProPresenterLayerWithTransportControl) {
     return this.sendRequestToProPresenter(`/v1/transport/${layer}/go_to_end`);
   }
   /**
    * Requests the current transport time for the specified layer.
-   * @param layer (presentation, announcement, audio)
+   * @param {ProPresenterLayerWithTransportControl} layer
    * @returns The current transport time for the specified layer.
    */
-  transportLayerTime(layer: "presentation" | "announcement" | "audio") {
+  transportLayerTime(layer: ProPresenterLayerWithTransportControl) {
     return this.sendRequestToProPresenter(`/v1/transport/${layer}/time`);
   }
   /**
    * Moves to the specified time for the specified layer
-   * @param layer (presentation, announcement, audio)
+   * @param {ProPresenterLayerWithTransportControl} layer
    * @param time in seconds?
    * NOT READY
    */
-  transportLayerTimeSet(layer: "presentation" | "announcement" | "audio") {
+  transportLayerTimeSet(layer: ProPresenterLayerWithTransportControl) {
     return this.sendRequestToProPresenter(`/v1/transport/${layer}/time`, {
       method: "PUT",
     });
   }
   /**
    * Requests the auto-advance status for the specified layer.
-   * @param layer (presentation, announcement).
+   * @param {ProPresenterLayerWithTransportControlAndAutoAdvance} layer
    * @returns The auto-advance status for the specified layer.
    */
-  transportLayerAutoAdvance(layer: "presentation" | "announcement") {
+  transportLayerAutoAdvance(layer: ProPresenterLayerWithTransportControlAndAutoAdvance) {
     return this.sendRequestToProPresenter(`/v1/transport/${layer}/auto_advance`);
   }
   /**
    * Cancels the auto-advance for the specified layer.
-   * @param layer (presentation, announcement).
+   * @param {: ProPresenterLayerWithTransportControlAndAutoAdvance} layer
    */
-  transportLayerAutoAdvanceDelete(layer: "presentation" | "announcement") {
+  transportLayerAutoAdvanceDelete(layer: ProPresenterLayerWithTransportControlAndAutoAdvance) {
     return this.sendRequestToProPresenter(`/v1/transport/${layer}/auto_advance`, {
       method: "DELETE",
     });
   }
   /**
    * Requests the details of the currently playing content for the specified layer
-   * @param layer (presentation, announcement).
+   * @param {ProPresenterLayerWithTransportControl} layer
    * @returns The details of the currently playing content for the specified layer
    */
-  transportLayerCurrent(layer: "presentation" | "announcement") {
+  transportLayerCurrent(layer: ProPresenterLayerWithTransportControl) {
     return this.sendRequestToProPresenter(`/v1/transport/${layer}/current`);
   }
 
