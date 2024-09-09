@@ -1,18 +1,18 @@
-export type JSONValue = // TODO: Perhaps JSONResponseAndPath is a better name?
-  | {
-      data: any;
-      status: number;
-      command: string; // TODO: Perhaps path is a better name?
-    }
-  | Promise<JSONValue>;
+export type RequestAndResponseJSONValue =
+{
+  data: any;
+  ok: boolean;
+  status: number;
+  path: string;
+};
 
-export type StatusJSON = 
+export type StatusUpdateJSON = 
 {
   url: string;
   data: any;
 }
 
-export type StatusCallback  = (StatusJSON) => void;
+export type StatusCallback  = (StatusUpdateJSON) => void;
 
 export type ProPresenterLayerName = "audio" | "props" | "messages" | "announcements" | "slide" | "media" | "video_input"
 export type ProPresenterCaptureOperation = "start" | "stop"
@@ -24,13 +24,13 @@ export type ProPresenterLayerWithTransportControlAndAutoAdvance = "presentation"
 
 
 export class ProPresenter {
-  ip: string; // TODO: Perhaps host is a better name? (As either a hostname or IP string would work)
+  hostOrIp: string;
   port: number;
   timeout: number; // User-defined timeout for all network fetch operations. If not explicitly set, this module will default to 2 seconds. This default is much shorter than the Node default fetch timeout of 30 seconds, making it more suitable for remote-control situations.
   #statusAbortController: AbortController; // Used to abort fetch of chunked status updates.
 
-  constructor(ip: string, port: number, timeout: number = 2000) {
-    this.ip = ip;
+  constructor(hostOrIp: string, port: number, timeout: number = 1000) {
+    this.hostOrIp = hostOrIp;
     this.port = port;
     this.timeout = timeout;
     this.#statusAbortController = null;  // Class level AbortController for the single, persistant Status connection that gets live feedback (through callbacks) for all registered endpoints. When you want to change endpoints/callbacks, any current status connection is dropped and replaced with a new one.
@@ -65,8 +65,8 @@ export class ProPresenter {
     };
 
     // Build Url
-    const url = `http://${this.ip}:${this.port}${path}`;
-    const resultObj: JSONValue = { data: null, status: null, command: path };
+    const url = `http://${this.hostOrIp}:${this.port}${path}`;
+    const resultObj: RequestAndResponseJSONValue = { data: null, ok:false, status: null, path: path };
 
     // Prepare to abort fetch if not completed within user-defined timeout
     const timeoutId = setTimeout(() => abortController.abort(), this.timeout);
@@ -75,6 +75,7 @@ export class ProPresenter {
       .then((response) => {
         clearTimeout(timeoutId); // Response received - clear pending abort for user-defined timeout
         resultObj.status = response.status;
+        resultObj.ok = response.ok;
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.indexOf("application/json") !== -1) // Check if response from Pro7 contains a JSON body. Some Pro7 API GET requests (eg most /trigger's) return only a header without any response body
           return response.json();
@@ -91,15 +92,15 @@ export class ProPresenter {
   /**
    * Register etc will POST to /v1/status/updates and handle the processing of streaming responses by calling callbacks with returned data
    * @param statusEndPointsAndCallbacks Dictionary of endpoints {[key: string]: StatusCallback} where the key is the get URL and the value is callback function
-   * @param timeout Optional network timeout for status connection. Defaults to 2000msec
+   * @param timeout Optional network timeout for status connection. Defaults to 1000msec
    */
-  registerCallbacksForStatusUpdates(statusEndPointsAndCallbacks: {[key: string]: StatusCallback}, timeout = 2000) {
+  registerCallbacksForStatusUpdates(statusEndPointsAndCallbacks: {[key: string]: StatusCallback}, timeout = 1000) {
     const self = this;
 
     // The following three private functions are used to create and maintain the persistant Status connection.
     // The fetchStatusWithTimeout function implements a simple fetch with timeout (and ability to aobort the connection)
     function fetchStatusWithTimeout(options): Promise<Response> {
-      const { timeout = 2000 } = options;
+      const { timeout = 1000 } = options;
   
       return new Promise((resolve, reject) => {
         const timer = setTimeout(() => {
@@ -107,8 +108,8 @@ export class ProPresenter {
         }, timeout);
         
         const statusEndPoints = Object.keys(statusEndPointsAndCallbacks);
-        const statusUrl = `http://${self.ip}:${self.port}/v1/status/updates`;
-        console.log("ProPresenter API module: About to start persistant status connection to " + statusUrl + ", for endpoints & callbacks: " + '[' + Object.keys(statusEndPointsAndCallbacks).map(key => `'${key}': ${statusEndPointsAndCallbacks[key].name}(statusJSONObject)`).join(', ') + ']');
+        const statusUrl = `http://${self.hostOrIp}:${self.port}/v1/status/updates`;
+        console.log("ProPresenter API module: About to start persistant status connection to " + statusUrl + ", for endpoints & callbacks: " + '[' + Object.keys(statusEndPointsAndCallbacks).map(key => `'${key}': ${statusEndPointsAndCallbacks[key].name}(StatusUpdateJSON: statusUpdateJSONObject)`).join(', ') + ']');
   
         return fetch(statusUrl, {
           method: "POST",
@@ -143,12 +144,11 @@ export class ProPresenter {
             console.log('Done reading stream');
             if (buffer.trim()) {
               try {
-                const statusJSONObject: StatusJSON = JSON.parse(buffer); 
-                //onJSONUpdate(json);
+                const statusUpdateJSONObject: StatusUpdateJSON = JSON.parse(buffer); 
                 const streamingCallbacks = Object.values(statusEndPointsAndCallbacks);
-                const callback:(StatusCallback) = streamingCallbacks[statusJSONObject.url];
+                const callback:(StatusCallback) = streamingCallbacks[statusUpdateJSONObject.url];
                 if (callback) {
-                  callback(statusJSONObject);
+                  callback(statusUpdateJSONObject);
                 }
               } catch (e) {
                 console.error("Failed to parse JSON:", e);
@@ -656,28 +656,28 @@ export class ProPresenter {
    * Requests a list of all configured audience looks, except the live look.
    * @returns A list of all configured audience looks, except the live look.
    */
-  lookGet() {
+  looksGet() {
     return this.sendRequestToProPresenter(`/v1/looks`);
   }
-  // /**
-  //  * Creates a new audience look with the specified details.
-  //  */
-  // lookCreate() {
-  //   return this.sendRequestToProPresenter(`/v1/looks`, { method: "POST" });
-  // }
+  /**
+   * Creates a new audience look with the specified details.
+   */
+  lookCreate(JSONBodyString: string) {
+    return this.sendRequestToProPresenter(`/v1/looks`, { method: "POST", body: JSONBodyString});
+  }
   /**
    * Requests the details of the currently live audience look.
    * @returns The details of the currently live audience look.
    */
   lookGetCurrent() {
-    return this.sendRequestToProPresenter(`/v1/looks/current`);
+    return this.sendRequestToProPresenter(`/v1/look/current`);
   }
   /**
    * Requests the details of the currently live audience look.
    * @returns The details of the currently live audience look.
    */
   lookSetCurrent() {
-    return this.sendRequestToProPresenter(`/v1/looks/current`, { method: "PUT" });
+    return this.sendRequestToProPresenter(`/v1/look/current`, { method: "PUT" });
   }
   /**
    * Requests the details of the specified audience look.
@@ -685,28 +685,28 @@ export class ProPresenter {
    * @returns The details of the specified audience look.
    */
   lookGetId(id: string) {
-    return this.sendRequestToProPresenter(`/v1/looks${id}`);
+    return this.sendRequestToProPresenter(`/v1/look/${id}`);
   }
   /**
    * Sets the details of the specified audience look.
    * @param {string} id
    */
   lookSetId(id: string) {
-    return this.sendRequestToProPresenter(`/v1/looks${id}`, { method: "PUT" });
+    return this.sendRequestToProPresenter(`/v1/look/${id}`, { method: "PUT" });
   }
   /**
    * Deletes the specified audience look from the saved looks.
    * @param {string} id
    */
   lookDeleteId(id: string) {
-    return this.sendRequestToProPresenter(`/v1/looks${id}`, { method: "DELETE" });
+    return this.sendRequestToProPresenter(`/v1/look/${id}`, { method: "DELETE" });
   }
   /**
    * Triggers the specified audience look to make it the live/current look.
    * @param {string} id
    */
   lookIdTrigger(id: string) {
-    return this.sendRequestToProPresenter(`/v1/looks${id}/trigger`);
+    return this.sendRequestToProPresenter(`/v1/look/${id}/trigger`);
   }
   /**
    * MACRO
@@ -724,22 +724,22 @@ export class ProPresenter {
    * @param {string} id
    * @returns The details of the specified macro.
    */
-  marcosIdGet(id: string) {
-    return this.sendRequestToProPresenter(`/v1/macros${id}`);
+  marcoIdGet(id: string) {
+    return this.sendRequestToProPresenter(`/v1/macro/${id}`);
   }
   /**
    * Sets the details of the specified macro.
    * @param {string} id
    */
-  marcosIdSet(id: string) {
-    return this.sendRequestToProPresenter(`/v1/macros${id}`, { method: "PUT" });
+  marcoIdSet(id: string) {
+    return this.sendRequestToProPresenter(`/v1/macro/${id}`, { method: "PUT" });
   }
   /**
    * Deletes the specified macro.
    * @param {string} id
    */
-  marcosIdDelete(id: string) {
-    return this.sendRequestToProPresenter(`/v1/macros${id}`, {
+  marcoIdDelete(id: string) {
+    return this.sendRequestToProPresenter(`/v1/macro/${id}`, {
       method: "DELETE",
     });
   }
@@ -747,8 +747,8 @@ export class ProPresenter {
    * Triggers the specified macro.
    * @param {string} id
    */
-  marcosIdTriggerGet(id: string) {
-    return this.sendRequestToProPresenter(`/v1/macros${id}/trigger`);
+  marcoIdTriggerGet(id: string) {
+    return this.sendRequestToProPresenter(`/v1/macro/${id}/trigger`);
   }
   /**
    * MASKS
@@ -758,23 +758,23 @@ export class ProPresenter {
    * @returns A list of all configured masks.
    */
   masksGet() {
-    return this.sendRequestToProPresenter(`/v1/masks`);
+    return this.sendRequestToProPresenter(`/v1/mask`);
   }
   /**
    * Requests the details of the specified mask.
    * @param {string} id
    * @returns The details of the specified mask.
    */
-  masksIdGet(id: string) {
-    return this.sendRequestToProPresenter(`/v1/masks/${id}`);
+  maskIdGet(id: string) {
+    return this.sendRequestToProPresenter(`/v1/mask/${id}`);
   }
   /**
    * Requests a thumbnail image of the specified mask at the given quality value.
    * @param {string} id
    * @returns A thumbnail image of the specified mask at the given quality value.
    */
-  masksIdThumbnailGet(id: string) {
-    return this.sendRequestToProPresenter(`/v1/masks/${id}/thumbnail`);
+  maskIdThumbnailGet(id: string) {
+    return this.sendRequestToProPresenter(`/v1/mask/${id}/thumbnail`);
   }
   /**
    * MEDIA

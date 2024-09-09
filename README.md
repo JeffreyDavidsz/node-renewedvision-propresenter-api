@@ -1,4 +1,4 @@
-# POST/PUT COMMANDS AREN't YET FINISHED AT THIS POINT
+# ⚠️POST/PUT COMMANDS AREN'T YET FINISHED AT THIS POINT⚠️
 ## RenewedVision ProPresenter API wrapper
 
 Typescript wrapper for Node.js.
@@ -15,7 +15,8 @@ yarn add renewedvision-propresenter
 import { ProPresenter } from 'renewedvision-propresenter'
 
 // Change IP and Port to the values from ProPresenter; settings... > Network (enable network)
-this.ProPresenter = new ProPresenter('10.0.0.1', 1025)
+// timeout is optional (and )
+this.ProPresenter = new ProPresenter('10.0.0.1', 1025, 1000)
 
 // Example request
 this.ProPresenter.version().then((result) => {
@@ -24,8 +25,9 @@ this.ProPresenter.version().then((result) => {
 		Example result;
 		{
 			"data":{"name":"MacBook-Pro","platform":"mac","os_version":"13.2.1","host_description":"ProPresenter 7.11","api_version":"v1"},
+			"ok":true,
 			"status":200,
-			"command":"/version"}
+			"path":"/version"}
 	*/
 })
 
@@ -52,7 +54,7 @@ timersCurrentUpdate = (statusJSONObject: StatusJSON) => {
 }
 ```
 
->> 'command' result will return the requested action/command. This way you can see where the data is returning from.
+>> 'path' result will return the requested action's endpoint path in the API. This way you can see where the data is returning from.
 
 ### Constructors
 
