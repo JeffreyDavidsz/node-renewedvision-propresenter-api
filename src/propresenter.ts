@@ -49,7 +49,7 @@ export class ProPresenter {
     // Define default options
     const defaultOptions = {};
     // Define default headers
-    const defaultHeaders = {};
+    const defaultHeaders = {"Content-Type": "application/json",};
     if (!userOptions) userOptions = [];
 
     const options = {
@@ -70,7 +70,6 @@ export class ProPresenter {
 
     // Prepare to abort fetch if not completed within user-defined timeout
     const timeoutId = setTimeout(() => abortController.abort(), this.timeout);
-
     return fetch(url, options)
       .then((response) => {
         clearTimeout(timeoutId); // Response received - clear pending abort for user-defined timeout
@@ -747,7 +746,7 @@ export class ProPresenter {
    * Triggers the specified macro.
    * @param {string} id
    */
-  marcoIdTriggerGet(id: string) {
+  marcoIdTrigger(id: string) {
     return this.sendRequestToProPresenter(`/v1/macro/${id}/trigger`);
   }
   /**
@@ -1475,7 +1474,7 @@ export class ProPresenter {
    * Gets a list of all the props.
    * @returns A list of all the props.
    */
-  propGet() {
+  propsGet() {
     return this.sendRequestToProPresenter(`/v1/props`);
   }
   /**
@@ -1636,11 +1635,12 @@ export class ProPresenter {
   }
   /**
    * Sets the status of the stage screens.
-   * NOT READY
    */
-  statusStageScreensSet() {
+  statusStageScreensSet(status: boolean) {
+    const bodyText = status ? 'true' : 'false'
     return this.sendRequestToProPresenter(`/v1/status/stage_screens`, {
       method: "PUT",
+      body: bodyText,
     });
   }
   /**
@@ -1652,11 +1652,12 @@ export class ProPresenter {
   }
   /**
    * Sets the status of the audience screens.
-   * NOT READY
    */
-  statusAudienceScreensSet() {
+  statusAudienceScreensSet(status: boolean) {
+    const bodyText = status ? 'true' : 'false'
     return this.sendRequestToProPresenter(`/v1/status/audience_screens`, {
       method: "PUT",
+      body: bodyText,
     });
   }
   /**
@@ -1803,7 +1804,14 @@ export class ProPresenter {
   timerIdOperation(id: string, operation: ProPresenterTimerOperation) {
     return this.sendRequestToProPresenter(`/v1/timer/${id}/${operation}`);
   }
-
+  /**
+   * Modifies the time on the specified running timer.
+   * @param id
+   * @param {number} time
+   */
+  timerIdIncrement(id: string, time: number) {
+    return this.sendRequestToProPresenter(`/v1/timer/${id}/increment/${time}`);
+  }
   /**
    * Requests the current system time.
    * @returns The current system time.
@@ -1963,7 +1971,7 @@ export class ProPresenter {
    * Requests the contents of the video inputs playlist.
    * @returns The contents of the video inputs playlist.
    */
-  videoInputs() {
+  videoInputsGet() {
     return this.sendRequestToProPresenter(`/v1/video_inputs`);
   }
   /**
