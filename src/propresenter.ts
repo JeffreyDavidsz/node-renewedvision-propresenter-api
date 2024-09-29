@@ -1,3 +1,6 @@
+import { error } from "console";
+import { EventEmitter } from "events"; // registerCallbacksForStatusUpdates() uses a persistant connection to receive live status feedback. This class will emit events "statusConnected"/"statusDisconnected" whenever the persistant status connection is connected/disconnected
+
 export type RequestAndResponseJSONValue =
 {
   data: any;
@@ -14,22 +17,23 @@ export type StatusUpdateJSON =
 
 export type StatusCallback  = (StatusUpdateJSON) => void;
 
-export type ProPresenterLayerName = "audio" | "props" | "messages" | "announcements" | "slide" | "media" | "video_input"
-export type ProPresenterCaptureOperation = "start" | "stop"
-export type ProPresenterCaptureType = "disk" | "rtmp" | "resi"
-export type ProPresenterTimelineOperation =  "play" | "pause" | "rewind"
-export type ProPresenterTimerOperation = "start" | "stop" | "reset"
-export type ProPresenterLayerWithTransportControl = "presentation" | "announcement" | "audio"
-export type ProPresenterLayerWithTransportControlAndAutoAdvance = "presentation" | "announcement"
+export type ProPresenterLayerName = "audio" | "props" | "messages" | "announcements" | "slide" | "media" | "video_input";
+export type ProPresenterCaptureOperation = "start" | "stop";
+export type ProPresenterCaptureType = "disk" | "rtmp" | "resi";
+export type ProPresenterTimelineOperation =  "play" | "pause" | "rewind";
+export type ProPresenterTimerOperation = "start" | "stop" | "reset";
+export type ProPresenterLayerWithTransportControl = "presentation" | "announcement" | "audio";
+export type ProPresenterLayerWithTransportControlAndAutoAdvance = "presentation" | "announcement";
+export type ProPresenterTimePeriod = "am" | "pm";
 
-
-export class ProPresenter {
+export class ProPresenter extends EventEmitter {
   hostOrIp: string;
   port: number;
   timeout: number; // User-defined timeout for all network fetch operations. If not explicitly set, this module will default to 2 seconds. This default is much shorter than the Node default fetch timeout of 30 seconds, making it more suitable for remote-control situations.
   #statusAbortController: AbortController; // Used to abort fetch of chunked status updates.
 
   constructor(hostOrIp: string, port: number, timeout: number = 1000) {
+    super();
     this.hostOrIp = hostOrIp;
     this.port = port;
     this.timeout = timeout;
@@ -76,13 +80,21 @@ export class ProPresenter {
         resultObj.status = response.status;
         resultObj.ok = response.ok;
         const contentType = response.headers.get("content-type");
-        if (contentType && contentType.indexOf("application/json") !== -1) // Check if response from Pro7 contains a JSON body. Some Pro7 API GET requests (eg most /trigger's) return only a header without any response body
+        if (contentType && contentType.indexOf("application/json") !== -1) // Check if response from Pro7 contains a JSON body. 
           return response.json();
-        else
+        else if (contentType && contentType.indexOf("text/plain") !== -1) // Check if response from Pro7 contains a text body (errors do this)
+          return response.text();
+        else // Some Pro7 API GET requests (eg most /trigger's) return only a header without any response body
           return JSON.stringify(null);  // Convention: For responses from Pro7 that do not have a body, return "null"
       })
       .then((result) => {
         resultObj.data = result;
+        return resultObj;
+      })
+      .catch((err) => {
+        resultObj.data = `ProPresenter: sendRequestToProPresenter(${path}) error: ` + err;
+        resultObj.ok = false;
+        console.log(resultObj.data);
         return resultObj;
       });
   };
@@ -97,7 +109,7 @@ export class ProPresenter {
     const self = this;
 
     // The following three private functions are used to create and maintain the persistant Status connection.
-    // The fetchStatusWithTimeout function implements a simple fetch with timeout (and ability to aobort the connection)
+    // The fetchStatusWithTimeout function implements a simple fetch with timeout (and ability to abort the connection)
     function fetchStatusWithTimeout(options): Promise<Response> {
       const { timeout = 1000 } = options;
   
@@ -119,12 +131,11 @@ export class ProPresenter {
           (response) => {
             clearTimeout(timer);
             resolve(response);
-          },
-          (err) => {
-            clearTimeout(timer);
-            reject(err);
           }
-        );
+        ).catch((err) => {
+          clearTimeout(timer);
+          reject(err);
+        });
       });
     }
   
@@ -132,7 +143,7 @@ export class ProPresenter {
     function readStream(reader, decoder, buffer) {
       return new Promise<void>((resolve, reject) => {
         const timeoutId = setTimeout(() => {
-          reject(new Error("Read stream timed out"));
+          reject(new Error("ProPresenter: Read stream timed out"));
         }, timeout);
   
         function processChunk({ done, value }) {
@@ -140,7 +151,7 @@ export class ProPresenter {
   
           if (done) {
             // Process any remaining buffer content if it contains a complete JSON object
-            console.log('Done reading stream');
+            console.log('ProPresenter: Done reading stream');
             if (buffer.trim()) {
               try {
                 const statusUpdateJSONObject: StatusUpdateJSON = JSON.parse(buffer); 
@@ -150,7 +161,7 @@ export class ProPresenter {
                   callback(statusUpdateJSONObject);
                 }
               } catch (e) {
-                console.error("Failed to parse JSON:", e);
+                console.error("ProPresenter: Failed to parse JSON:", e);
               }
             }
             return resolve();
@@ -178,7 +189,7 @@ export class ProPresenter {
                   callback(jsonStatusUpdateObject);
                 }
               } catch (e) {
-                console.error("Failed to parse JSON:", e);
+                console.error("ProPresenter: Failed to parse JSON:", e);
               }
             }
           });
@@ -201,30 +212,29 @@ export class ProPresenter {
       fetchStatusWithTimeout({ timeout })
         .then((response) => {
           if (!response.ok) {
-            // TODO: (emit?) status disconnected
-            // TODO: Decide between throwing error, or (emit?)
             // Details of error may be in body (eg invalid status urls)
             return response.text().then((text) => {
-              throw new Error(
+              self.emit('statusConnectionError')
+              /*throw new Error(
                 `HTTP Error! Status: ${response.status} Body: ${text}`
-              );
+              );*/
             });
           }
-          // TODO: (emit?) status connected
+          self.emit('statusConnectionConnected')
           const reader = response.body.getReader();
           const decoder = new TextDecoder();
           let buffer = "";
           return readStream(reader, decoder, buffer);
         })
         .then(() => {
-          // TODO: (emit?) status disconnected
-          console.log( "Chunked status fetch completed. Retrying connection...");
+          self.emit('statusConnectionDisconnected')
+          console.log( "ProPresenter: Chunked status fetch completed. Retrying connection...");
           setTimeout(connectAndStartProcessing, 2000); // Retry after time TODO: configurable retry time?
         })
         .catch((error) => {
-          // TODO: (emit?) status disconnected
-          console.error("Error processing JSON stream:", error);
-          console.log("Retrying connection...");
+          self.emit('statusConnectionError')
+          //console.error("Error processing JSON stream:", error);
+          console.log("ProPresenter: fetchStatusWithTimeout error. Retrying connection...");
           setTimeout(connectAndStartProcessing, 2000); // Retry after time TODO: configurable retry time?
         });
     }
@@ -289,7 +299,7 @@ export class ProPresenter {
    * Performs the requested timeline operation for the active announcment presentation.
    * @param {play,pause,rewind} operation
    */
-  announcementActiveTimelineOperation(operation) {
+  announcementActiveTimelineOperation(operation: ProPresenterTimelineOperation) {
     return this.sendRequestToProPresenter(
       `/v1/announcement/active/timeline/${operation}`
     );
@@ -975,40 +985,41 @@ export class ProPresenter {
    * @returns The details of the specified message.
    * @param {string} id
    */
-  messagesIdGet(id: string) {
-    return this.sendRequestToProPresenter(`/v1/message${id}`);
+  messageIdGet(id: string) {
+    return this.sendRequestToProPresenter(`/v1/message/${id}`);
   }
   /**
    * Sets the details of the specified message.
    * @param {string} id
    */
-  messagesIdSet(id: string) {
-    return this.sendRequestToProPresenter(`/v1/message${id}`, { method: "PUT" });
+  messageIdSet(id: string) {
+    return this.sendRequestToProPresenter(`/v1/message/${id}`, { method: "PUT" });
   }
   /**
    * Deletes the specified message.
    * @param {string} id
    */
-  messagesIdDelete(id: string) {
-    return this.sendRequestToProPresenter(`/v1/message${id}`, {
+  messageIdDelete(id: string) {
+    return this.sendRequestToProPresenter(`/v1/message/${id}`, {
       method: "DELETE",
     });
   }
-  // /**
-  //  * Triggers / Shows the specified message.
-  //  * @param {string} id
-  //  */
-  // messagesIdTrigger(id: string) {
-  //   return this.sendRequestToProPresenter(`/v1/message${id}/trigger`, {
-  //     method: "POST",
-  //   });
-  // }
+  /**
+  * Triggers / Shows the specified message.
+  * @param {string} id
+  */
+  messageIdTrigger(id: string, JSONBodyString: string) {
+    return this.sendRequestToProPresenter(`/v1/message/${id}/trigger`, {
+     method: "POST",
+     body: JSONBodyString,
+    });
+  }
   /**
    * Clears / Hides the specified message.
    * @param {string} id
    */
-  messagesIdClear(id: string) {
-    return this.sendRequestToProPresenter(`/v1/message${id}/clear`);
+  messageIdClear(id: string) {
+    return this.sendRequestToProPresenter(`/v1/message/${id}/clear`);
   }
   /**
    * MISCELLANEOUS
@@ -1531,8 +1542,8 @@ export class ProPresenter {
   /**
    * Shows the specified stage message on the configured stage screen.
    */
-  stageMessage() {
-    return this.sendRequestToProPresenter(`/v1/stage/message`, { method: "PUT" });
+  stageMessage(message: string) {
+    return this.sendRequestToProPresenter(`/v1/stage/message`, { method: "PUT", body: '"' + message + '"' });
   }
   /**
    * Hides the currently displayed stage message from the configured stage screen.
@@ -1578,7 +1589,7 @@ export class ProPresenter {
    * @param id
    * @param layout_id
    */
-  stageScreenIdLayoutId(id: string, layout_id: string) {
+  stageScreenIdSetLayoutId(id: string, layout_id: string) {
     return this.sendRequestToProPresenter(
       `/v1/stage/screen/${id}/layout/${layout_id}`
     );
@@ -1780,12 +1791,53 @@ export class ProPresenter {
     return this.sendRequestToProPresenter(`/v1/timer/${id}`);
   }
   /**
-   * Sets the details of the specified timer.
-   * @param id
-   * NOT READY
+   * Sets a specified timer to a Countdown timer (optionally allows renaming)
+   * @param id Timer id (name, uuid or index)
+   * @param duration Number of seconds to countdown from (must be positive)
+   * @param allowsOverrun Allow countdown timer to keep counting down into negtive time
+   * @param newName Optional new name for timer
    */
-  timerIdSet(id: string) {
-    return this.sendRequestToProPresenter(`/v1/timer/${id}`, { method: "PUT" });
+  timerIdSetToCountdown(id: string, duration: number, allowsOverrun: boolean, optionalOperation?: ProPresenterTimerOperation, newName?: string) {
+    const idJSONString: string = (typeof newName !== 'undefined') ? `{"name":"${newName}"}` : '{}' // Check if a new name was passed, and update JSON to rename if so.
+    const pathString: string  = `/v1/timer/${id}` + ((typeof optionalOperation !== 'undefined') ? '/' + optionalOperation as string : '')
+    return this.sendRequestToProPresenter(pathString, { 
+      method: "PUT",
+      body: `{"allows_overrun": ${allowsOverrun}, "countdown": {"duration": ${duration}}, "id":${idJSONString} }`
+    });
+  }
+  /**
+   * Sets a specified timer to a CountdownToTime timer (optionally allows renaming)
+   * @param id Timer id (name, uuid or index)
+   * @param timeOfDay Time of day (in seconds)
+   * @param timePeriod ProPresenterTimePeriod ("am" | "pm")
+   * @param allowsOverrun Allow countdown timer to keep counting down into negtive time
+   * @param newName Optional new name for timer
+   */
+  timerIdSetToCountdownToTime(id: string, timeOfDay: number, timePeriod: ProPresenterTimePeriod, allowsOverrun: boolean, optionalOperation?: ProPresenterTimerOperation, newName?: string) {
+    const idJSONString: string = (typeof newName !== 'undefined') ? `{"name":"${newName}"}` : '{}' // Check if a new name was passed, and update JSON to rename if so.
+    const pathString: string  = `/v1/timer/${id}` + ((typeof optionalOperation !== 'undefined') ? '/' + optionalOperation as string : '')
+    return this.sendRequestToProPresenter(pathString, { 
+      method: "PUT",
+      body: `{"allows_overrun": ${allowsOverrun}, "count_down_to_time": {"time_of_day": ${timeOfDay}, "period": "${timePeriod as string}"}, "id":${idJSONString} }`
+    });
+  }
+   /**
+   * Sets a specified timer to an Elapsed timer (optionally allows renaming)
+   * @param id Timer id (name, uuid or index)
+   * @param startTime Start time (in seconds)
+   * @param endTime End time (in seconds)
+   * @param allowsOverrun Allow countdown timer to keep counting down into negtive time
+   * @param newName Optional new name for timer
+   */
+   timerIdSetToElapsed(id: string, startTime: number, allowsOverrun: boolean, endTime?: number, optionalOperation?: ProPresenterTimerOperation, newName?: string) {
+    const idJSONString: string = (typeof newName !== 'undefined') ? `{"name":"${newName}"}` : '{}' // Check if a new name was passed, and update JSON to rename if so.
+    const endTimeJSONString: string = (typeof endTime !== 'undefined') ? `"end_time": ${endTime}, ` : '' // Check if an endTime was passed, and update JSON to inlude it if so.
+    const pathString: string  = `/v1/timer/${id}` + ((typeof optionalOperation !== 'undefined') ? '/' + optionalOperation as string : '')
+
+    return this.sendRequestToProPresenter(pathString, { 
+      method: "PUT",
+      body: `{"allows_overrun": ${allowsOverrun}, "elapsed": {${endTimeJSONString} "start_time": ${startTime}}, "id":${idJSONString} }`
+    });
   }
   /**
    * Deletes the specified timer.
