@@ -1641,7 +1641,7 @@ export class ProPresenter extends EventEmitter {
    * Requests the status of the stage screens.
    * @returns The status of the stage screens.
    */
-  statusStageScreens() {
+  statusStageScreensGet() {
     return this.sendRequestToProPresenter(`/v1/status/stage_screens`);
   }
   /**
@@ -1658,7 +1658,7 @@ export class ProPresenter extends EventEmitter {
    * Requests the status of the audience screens.
    * @returns The status of the audience screens.
    */
-  statusAudienceScreens() {
+  statusAudienceScreensGet() {
     return this.sendRequestToProPresenter(`/v1/status/audience_screens`);
   }
   /**
