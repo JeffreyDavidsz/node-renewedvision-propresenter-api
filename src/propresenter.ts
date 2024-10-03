@@ -1941,12 +1941,11 @@ export class ProPresenter extends EventEmitter {
   /**
    * Moves to the specified time for the specified layer
    * @param {ProPresenterLayerWithTransportControl} layer
-   * @param time in seconds?
-   * NOT READY
+   * @param time in seconds
    */
-  transportLayerTimeSet(layer: ProPresenterLayerWithTransportControl) {
+  transportLayerTimeSet(layer: ProPresenterLayerWithTransportControl, goto_time: number) {
     return this.sendRequestToProPresenter(`/v1/transport/${layer}/time`, {
-      method: "PUT",
+      method: "PUT", body: `${goto_time}`
     });
   }
   /**
@@ -1959,7 +1958,7 @@ export class ProPresenter extends EventEmitter {
   }
   /**
    * Cancels the auto-advance for the specified layer.
-   * @param {: ProPresenterLayerWithTransportControlAndAutoAdvance} layer
+   * @param {ProPresenterLayerWithTransportControlAndAutoAdvance} layer
    */
   transportLayerAutoAdvanceDelete(layer: ProPresenterLayerWithTransportControlAndAutoAdvance) {
     return this.sendRequestToProPresenter(`/v1/transport/${layer}/auto_advance`, {
@@ -2003,6 +2002,15 @@ export class ProPresenter extends EventEmitter {
   triggerAudioPrevious() {
     return this.sendRequestToProPresenter(`/v1/trigger/audio/previous`);
   }
+  /**
+   * Triggers the specified audio item in the specified audio playlist.
+   * @param {string} audioPlaylistID name, index or uuid of audio playlist
+   * @param {string} audioItemID name, index or uuid of audio item within playlist
+   * @todo For now, this is an undocument API - but it works
+   */
+    triggerAudioPlaylistIDAudioID(audioPlaylistID: string, audioItemID: string) {
+      return this.sendRequestToProPresenter(`/v1/trigger/audio/${audioPlaylistID}/${audioItemID}`);
+    }
   /**
    * Triggers the next cue or item in the currently active playlist or library.
    */
