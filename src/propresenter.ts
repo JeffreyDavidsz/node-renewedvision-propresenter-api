@@ -1311,10 +1311,7 @@ export class ProPresenter extends EventEmitter {
    * @param {string} uuid
    * @param {ProPresenterTimelineOperation} operation
    */
-  presentationUUIDFocusedTimelineOperation(
-    uuid: string,
-    operation: ProPresenterTimelineOperation
-  ) {
+  presentationUUIDTimelineOperation(uuid: string, operation: ProPresenterTimelineOperation) {
     return this.sendRequestToProPresenter(
       `/v1/presentation/${uuid}/timeline/${operation}`
     );
@@ -1988,7 +1985,7 @@ export class ProPresenter extends EventEmitter {
    * Triggers the previous item in the currently active media playlist.
    */
   triggerMediaPrevious() {
-    return this.sendRequestToProPresenter(`/v1/trigger/media/next`);
+    return this.sendRequestToProPresenter(`/v1/trigger/media/previous`);
   }
   /**
    * Triggers the next item in the currently active media playlist.
