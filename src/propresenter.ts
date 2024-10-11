@@ -857,7 +857,7 @@ export class ProPresenter extends EventEmitter {
    * Sets the focus to the specified media playlist.
    * @param {string} playlist_id
    */
-  mediaPlaylistPlaylistIdFocus(playlist_id: string) {
+  mediaPlaylistByPlaylistIdFocus(playlist_id: string) {
     return this.sendRequestToProPresenter(
       `/v1/media/playlist/${playlist_id}/focus`
     );
@@ -878,7 +878,7 @@ export class ProPresenter extends EventEmitter {
    * Triggers the first item in the specified media playlist.
    * @param {string} playlist_id
    */
-  mediaPlaylistPlaylistIdTrigger(playlist_id: string) {
+  mediaPlaylistByPlaylistIdTrigger(playlist_id: string) {
     return this.sendRequestToProPresenter(
       `/v1/media/playlist/${playlist_id}/trigger`
     );
@@ -937,7 +937,7 @@ export class ProPresenter extends EventEmitter {
    * Triggers the next item in the specified media playlist.
    * @param {string} playlist_id
    */
-  mediaPlaylistPlaylistIdNextTrigger(playlist_id: string) {
+  mediaPlaylistByPlaylistIdNextTrigger(playlist_id: string) {
     return this.sendRequestToProPresenter(
       `/v1/media/playlist/${playlist_id}/next/trigger`
     );
@@ -946,7 +946,7 @@ export class ProPresenter extends EventEmitter {
    * Triggers the previous item in the specified media playlist.
    * @param {string} playlist_id
    */
-  mediaPlaylistPlaylistIdPreviousTrigger(playlist_id: string) {
+  mediaPlaylistByPlaylistIdPreviousTrigger(playlist_id: string) {
     return this.sendRequestToProPresenter(
       `/v1/media/playlist/${playlist_id}/previous/trigger`
     );
@@ -956,7 +956,7 @@ export class ProPresenter extends EventEmitter {
    * @param {string} playlist_id
    * @param {string} media_id
    */
-  mediaPlaylistPlaylistIdMediaIdTrigger(playlist_id: string, media_id: string) {
+  mediaPlaylistByPlaylistIdMediaIdTrigger(playlist_id: string, media_id: string) {
     return this.sendRequestToProPresenter(
       `/v1/media/playlist/${playlist_id}/${media_id}/trigger`
     );
@@ -1155,28 +1155,28 @@ export class ProPresenter extends EventEmitter {
    * @param {string} identifier
    * @returns A chunked data update every time the specified audio playlist changes.
    */
-  playlistIdentifierUpdates(identifier: string) {
+  playlistByPlaylistIdUpdates(identifier: string) {
     return this.sendRequestToProPresenter(`/v1/playlist/${identifier}/updates`);
   }
   /**
    * Moves the focus to the specified playlist.
    * @param {string} identifier
    */
-  playlistIdentifierFocus(identifier: string) {
+  playlistByPlaylistIdFocus(identifier: string) {
     return this.sendRequestToProPresenter(`/v1/playlist/${identifier}/focus`);
   }
   /**
    * Triggers the first item in the specified playlist.
    * @param {string} identifier
    */
-  playlistIdentifierTrigger(identifier: string) {
+  playlistByPlaylistIdTrigger(identifier: string) {
     return this.sendRequestToProPresenter(`/v1/playlist/${identifier}/trigger`);
   }
   /**
    * Triggers the next item in the specified playlist.
    * @param {string} identifier
    */
-  playlistIdentifierNextTrigger(identifier: string) {
+  playlistByPlaylistIdNextTrigger(identifier: string) {
     return this.sendRequestToProPresenter(
       `/v1/playlist/${identifier}/next/trigger`
     );
@@ -1185,7 +1185,7 @@ export class ProPresenter extends EventEmitter {
    * Triggers the previous item in the specified playlist.
    * @param {string} identifier
    */
-  playlistIdentifierPreviousTrigger(identifier: string) {
+  playlistByPlaylistIdPreviousTrigger(identifier: string) {
     return this.sendRequestToProPresenter(
       `/v1/playlist/${identifier}/previous/trigger`
     );
@@ -1195,7 +1195,7 @@ export class ProPresenter extends EventEmitter {
    * @param {string} identifier
    * @param {string} index
    */
-  playlistIdentifierIndexTrigger(identifier: string, index: string) {
+  playlistByPlaylistIdIndexTrigger(identifier: string, index: string) {
     return this.sendRequestToProPresenter(
       `/v1/playlist/${identifier}/${index}/trigger`
     );
