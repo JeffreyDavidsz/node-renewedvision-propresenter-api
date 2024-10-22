@@ -77,6 +77,7 @@ export class ProPresenter extends EventEmitter {
     return fetch(url, options)
       .then((response) => {
         clearTimeout(timeoutId); // Response received - clear pending abort for user-defined timeout
+        // Capture response details, ready to return later...
         resultObj.status = response.status;
         resultObj.ok = response.ok;
         const contentType = response.headers.get("content-type");
@@ -88,10 +89,13 @@ export class ProPresenter extends EventEmitter {
           return JSON.stringify(null);  // Convention: For responses from Pro7 that do not have a body, return "null"
       })
       .then((result) => {
-        resultObj.data = result;
+        resultObj.data = result; // Capture response data, ready to return later...
+        if (!resultObj.ok)
+          this.emit('requestNotOK',resultObj,options);
         return resultObj;
       })
       .catch((err) => {
+        // Capture response data, ready to return later...
         resultObj.data = `ProPresenter: sendRequestToProPresenter(${path}) error: ` + err;
         resultObj.ok = false;
         console.log(resultObj.data);
@@ -182,8 +186,6 @@ export class ProPresenter extends EventEmitter {
               // Ensure it's not an empty string
               try {
                 const jsonStatusUpdateObject = JSON.parse(statusUpdateJSON);
-                //console.log("Got Update for URL: " + jsonStatusUpdateObject.url);
-                // TODO: remove: this.statusAbortController = Object.values(statusEndPointsAndCallbacks);
                 const callback = statusEndPointsAndCallbacks[jsonStatusUpdateObject.url];
                 if (callback) {
                   callback(jsonStatusUpdateObject);
@@ -229,13 +231,13 @@ export class ProPresenter extends EventEmitter {
         .then(() => {
           self.emit('statusConnectionDisconnected')
           console.log( "ProPresenter: Chunked status fetch completed. Retrying connection...");
-          setTimeout(connectAndStartProcessing, 2000); // Retry after time TODO: configurable retry time?
+          setTimeout(connectAndStartProcessing, 2000); // Retry after time
         })
         .catch((error) => {
           self.emit('statusConnectionError')
           //console.error("Error processing JSON stream:", error);
           console.log("ProPresenter: fetchStatusWithTimeout error. Retrying connection...");
-          setTimeout(connectAndStartProcessing, 2000); // Retry after time TODO: configurable retry time?
+          setTimeout(connectAndStartProcessing, 2000); // Retry after time
         });
     }
 
@@ -308,7 +310,7 @@ export class ProPresenter extends EventEmitter {
    * Requests the current state of the active announcement timeline.
    * @returns The current state of the active announcement timeline.
    */
-  announcementGetActiveTimelineOperation() { // TODO: fix this name
+  announcementGetActiveTimelineOperation() {
     return this.sendRequestToProPresenter(`/v1/announcement/active/timeline`);
   }
   /**
@@ -505,7 +507,7 @@ export class ProPresenter extends EventEmitter {
    * @param {string} id (name, index or UUID)
    * @returns The details of the specified clear group.
    */
-  clearGetGroupId(id: string) {
+  clearGroupIdGet(id: string) {
     return this.sendRequestToProPresenter(`/v1/clear/group/${id}`);
   }
   /**
@@ -513,7 +515,7 @@ export class ProPresenter extends EventEmitter {
    * @param {string} id (name, index or UUID)
    * @returns The details of the specified clear group.
    */
-  clearSetGroupId(id: string) {
+  clearGroupIdSet(id: string) {
     return this.sendRequestToProPresenter(`/v1/clear/group/${id}`, {
       method: "PUT",
     });
@@ -522,7 +524,7 @@ export class ProPresenter extends EventEmitter {
    * Deletes the specified clear group.
    * @param {string} id (name, index or UUID)
    */
-  clearDeleteGroupId(id: string) {
+  clearGroupIdDelete(id: string) {
     return this.sendRequestToProPresenter(`/v1/clear/group/${id}`, {
       method: "DELETE",
     });
@@ -532,7 +534,7 @@ export class ProPresenter extends EventEmitter {
    * @param {string} id (name, index or UUID)
    * @returns The image data for the icon of the specified clear group.
    */
-  clearGetGroupIdIcon(id: string) {
+  clearGroupIdIconGet(id: string) {
     return this.sendRequestToProPresenter(`/v1/clear/group/${id}/icon`);
   }
   /**
@@ -540,7 +542,7 @@ export class ProPresenter extends EventEmitter {
    * @param {string} id (name, index or UUID)
    * @returns
    */
-  clearSetGroupIdIcon(id: string) {
+  clearGroupIdIconSet(id: string) {
     return this.sendRequestToProPresenter(`/v1/clear/group/${id}/icon`, {
       method: "PUT",
     });
@@ -556,7 +558,7 @@ export class ProPresenter extends EventEmitter {
    * Requests a list of all the configured clear groups.
    * @returns A list of all the configured clear groups.
    */
-  clearGetGroup() {
+  clearGroupsGet() {
     return this.sendRequestToProPresenter(`/v1/clear/groups`);
   }
   /**
@@ -857,7 +859,7 @@ export class ProPresenter extends EventEmitter {
    * Sets the focus to the specified media playlist.
    * @param {string} playlist_id
    */
-  mediaPlaylistPlaylistIdFocus(playlist_id: string) {
+  mediaPlaylistByPlaylistIdFocus(playlist_id: string) {
     return this.sendRequestToProPresenter(
       `/v1/media/playlist/${playlist_id}/focus`
     );
@@ -878,7 +880,7 @@ export class ProPresenter extends EventEmitter {
    * Triggers the first item in the specified media playlist.
    * @param {string} playlist_id
    */
-  mediaPlaylistPlaylistIdTrigger(playlist_id: string) {
+  mediaPlaylistByPlaylistIdTrigger(playlist_id: string) {
     return this.sendRequestToProPresenter(
       `/v1/media/playlist/${playlist_id}/trigger`
     );
@@ -937,7 +939,7 @@ export class ProPresenter extends EventEmitter {
    * Triggers the next item in the specified media playlist.
    * @param {string} playlist_id
    */
-  mediaPlaylistPlaylistIdNextTrigger(playlist_id: string) {
+  mediaPlaylistByPlaylistIdNextTrigger(playlist_id: string) {
     return this.sendRequestToProPresenter(
       `/v1/media/playlist/${playlist_id}/next/trigger`
     );
@@ -946,7 +948,7 @@ export class ProPresenter extends EventEmitter {
    * Triggers the previous item in the specified media playlist.
    * @param {string} playlist_id
    */
-  mediaPlaylistPlaylistIdPreviousTrigger(playlist_id: string) {
+  mediaPlaylistByPlaylistIdPreviousTrigger(playlist_id: string) {
     return this.sendRequestToProPresenter(
       `/v1/media/playlist/${playlist_id}/previous/trigger`
     );
@@ -956,7 +958,7 @@ export class ProPresenter extends EventEmitter {
    * @param {string} playlist_id
    * @param {string} media_id
    */
-  mediaPlaylistPlaylistIdMediaIdTrigger(playlist_id: string, media_id: string) {
+  mediaPlaylistByPlaylistIdMediaIdTrigger(playlist_id: string, media_id: string) {
     return this.sendRequestToProPresenter(
       `/v1/media/playlist/${playlist_id}/${media_id}/trigger`
     );
@@ -1155,28 +1157,28 @@ export class ProPresenter extends EventEmitter {
    * @param {string} identifier
    * @returns A chunked data update every time the specified audio playlist changes.
    */
-  playlistIdentifierUpdates(identifier: string) {
+  playlistByPlaylistIdUpdates(identifier: string) {
     return this.sendRequestToProPresenter(`/v1/playlist/${identifier}/updates`);
   }
   /**
    * Moves the focus to the specified playlist.
    * @param {string} identifier
    */
-  playlistIdentifierFocus(identifier: string) {
+  playlistByPlaylistIdFocus(identifier: string) {
     return this.sendRequestToProPresenter(`/v1/playlist/${identifier}/focus`);
   }
   /**
    * Triggers the first item in the specified playlist.
    * @param {string} identifier
    */
-  playlistIdentifierTrigger(identifier: string) {
+  playlistByPlaylistIdTrigger(identifier: string) {
     return this.sendRequestToProPresenter(`/v1/playlist/${identifier}/trigger`);
   }
   /**
    * Triggers the next item in the specified playlist.
    * @param {string} identifier
    */
-  playlistIdentifierNextTrigger(identifier: string) {
+  playlistByPlaylistIdNextTrigger(identifier: string) {
     return this.sendRequestToProPresenter(
       `/v1/playlist/${identifier}/next/trigger`
     );
@@ -1185,7 +1187,7 @@ export class ProPresenter extends EventEmitter {
    * Triggers the previous item in the specified playlist.
    * @param {string} identifier
    */
-  playlistIdentifierPreviousTrigger(identifier: string) {
+  playlistByPlaylistIdPreviousTrigger(identifier: string) {
     return this.sendRequestToProPresenter(
       `/v1/playlist/${identifier}/previous/trigger`
     );
@@ -1195,7 +1197,7 @@ export class ProPresenter extends EventEmitter {
    * @param {string} identifier
    * @param {string} index
    */
-  playlistIdentifierIndexTrigger(identifier: string, index: string) {
+  playlistByPlaylistIdIndexTrigger(identifier: string, index: string) {
     return this.sendRequestToProPresenter(
       `/v1/playlist/${identifier}/${index}/trigger`
     );
@@ -1311,10 +1313,7 @@ export class ProPresenter extends EventEmitter {
    * @param {string} uuid
    * @param {ProPresenterTimelineOperation} operation
    */
-  presentationUUIDFocusedTimelineOperation(
-    uuid: string,
-    operation: ProPresenterTimelineOperation
-  ) {
+  presentationUUIDTimelineOperation(uuid: string, operation: ProPresenterTimelineOperation) {
     return this.sendRequestToProPresenter(
       `/v1/presentation/${uuid}/timeline/${operation}`
     );
@@ -1641,7 +1640,7 @@ export class ProPresenter extends EventEmitter {
    * Requests the status of the stage screens.
    * @returns The status of the stage screens.
    */
-  statusStageScreens() {
+  statusStageScreensGet() {
     return this.sendRequestToProPresenter(`/v1/status/stage_screens`);
   }
   /**
@@ -1658,7 +1657,7 @@ export class ProPresenter extends EventEmitter {
    * Requests the status of the audience screens.
    * @returns The status of the audience screens.
    */
-  statusAudienceScreens() {
+  statusAudienceScreensGet() {
     return this.sendRequestToProPresenter(`/v1/status/audience_screens`);
   }
   /**
@@ -1927,8 +1926,8 @@ export class ProPresenter extends EventEmitter {
    * Moves to the end on a certain layer
    * @param {ProPresenterLayerWithTransportControl} layer
    */
-  transportLayerGoToEnd(layer: ProPresenterLayerWithTransportControl) {
-    return this.sendRequestToProPresenter(`/v1/transport/${layer}/go_to_end`);
+  transportLayerGoToEnd(layer: ProPresenterLayerWithTransportControl, secondsFromEnd: Number = 0) {
+    return this.sendRequestToProPresenter(`/v1/transport/${layer}/go_to_end?time=${secondsFromEnd}`);
   }
   /**
    * Requests the current transport time for the specified layer.
@@ -1941,12 +1940,11 @@ export class ProPresenter extends EventEmitter {
   /**
    * Moves to the specified time for the specified layer
    * @param {ProPresenterLayerWithTransportControl} layer
-   * @param time in seconds?
-   * NOT READY
+   * @param time in seconds
    */
-  transportLayerTimeSet(layer: ProPresenterLayerWithTransportControl) {
+  transportLayerTimeSet(layer: ProPresenterLayerWithTransportControl, goto_time: number) {
     return this.sendRequestToProPresenter(`/v1/transport/${layer}/time`, {
-      method: "PUT",
+      method: "PUT", body: `${goto_time}`
     });
   }
   /**
@@ -1959,7 +1957,7 @@ export class ProPresenter extends EventEmitter {
   }
   /**
    * Cancels the auto-advance for the specified layer.
-   * @param {: ProPresenterLayerWithTransportControlAndAutoAdvance} layer
+   * @param {ProPresenterLayerWithTransportControlAndAutoAdvance} layer
    */
   transportLayerAutoAdvanceDelete(layer: ProPresenterLayerWithTransportControlAndAutoAdvance) {
     return this.sendRequestToProPresenter(`/v1/transport/${layer}/auto_advance`, {
@@ -1989,7 +1987,7 @@ export class ProPresenter extends EventEmitter {
    * Triggers the previous item in the currently active media playlist.
    */
   triggerMediaPrevious() {
-    return this.sendRequestToProPresenter(`/v1/trigger/media/next`);
+    return this.sendRequestToProPresenter(`/v1/trigger/media/previous`);
   }
   /**
    * Triggers the next item in the currently active media playlist.
@@ -2003,6 +2001,15 @@ export class ProPresenter extends EventEmitter {
   triggerAudioPrevious() {
     return this.sendRequestToProPresenter(`/v1/trigger/audio/previous`);
   }
+  /**
+   * Triggers the specified audio item in the specified audio playlist.
+   * @param {string} audioPlaylistID name, index or uuid of audio playlist
+   * @param {string} audioItemID name, index or uuid of audio item within playlist
+   * For now, this is an undocument API - but it is valid and works
+   */
+    triggerAudioPlaylistIDAudioID(audioPlaylistID: string, audioItemID: string) {
+      return this.sendRequestToProPresenter(`/v1/trigger/audio/${audioPlaylistID}/${audioItemID}`);
+    }
   /**
    * Triggers the next cue or item in the currently active playlist or library.
    */
