@@ -1203,12 +1203,32 @@ export class ProPresenter extends EventEmitter {
     );
   }
   /**
+   * Triggers the specified cue in the specified item in the specified playlist.
+   * @param {string} identifier
+   * @param {string} index
+   * @param {string} cue_index
+   */
+  playlistByPlaylistIdIndexCueIndexTrigger(identifier: string, index: string, cue_index: string) {
+    return this.sendRequestToProPresenter(
+      `/v1/playlist/${identifier}/${index}/${cue_index}/trigger`
+    );
+  }
+  /**
    * Triggers the specified item in the focused playlist.
    * @param {string} index
    */
   playlistFocusedIndexTrigger(index: string) {
     return this.sendRequestToProPresenter(
       `/v1/playlist/focused/${index}/trigger`
+    );
+  }
+  /**
+   * Triggers the specified cue in the specified item in the focused playlist.
+   * @param {string} index
+   */
+  playlistFocusedIndexCueIndexTrigger(index: string, cue_index: string) {
+    return this.sendRequestToProPresenter(
+      `/v1/playlist/focused/${index}/${cue_index}/trigger`
     );
   }
   /**
@@ -1221,12 +1241,30 @@ export class ProPresenter extends EventEmitter {
     );
   }
   /**
+   * Triggers the specified cue in the specified item in the currently active playlist for the presentation destination.
+   * @param {string} index
+   */
+  playlistActivePresentationIndexCueIndexTrigger(index: string, cue_index: string) {
+    return this.sendRequestToProPresenter(
+      `/v1/playlist/active/presentation/${index}/${cue_index}/trigger`
+    );
+  }
+  /**
    * Triggers the specified item in the currently active playlist for the announcement destination.
    * @param {string} index
    */
   playlistActiveAnnouncementIndexTrigger(index: string) {
     return this.sendRequestToProPresenter(
       `/v1/playlist/active/announcement/${index}/trigger`
+    );
+  }
+  /**
+   * Triggers the specified cue in the specified item in the currently active playlist for the announcement destination.
+   * @param {string} index
+   */
+  playlistActiveAnnouncementIndexCueIndexTrigger(index: string, cue_index: string) {
+    return this.sendRequestToProPresenter(
+      `/v1/playlist/active/announcement/${index}/${cue_index}/trigger`
     );
   }
   /**
