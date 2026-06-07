@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api"
+    "url": "git+https://github.com/JeffreyDavidsz/node-renewedvision-propresenter-api.git"
   },
   "author": {
     "name": "Jeffrey Davidsz <jeffrey.davidsz@vicreo.eu>"
